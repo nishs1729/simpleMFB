@@ -25,50 +25,47 @@ class mfb:
         if 'Ca' in models:
             if models['Ca'] == []: self.X0 += initVal['Ca']
             else: self.X0 += models['Ca']
-            idx.update({'Ca': {'Ca': i}})
+            idx.update({'Ca': i})
             i += len(initVal['Ca'])
 
         if 'HH' in models:
             if models['HH'] == []: self.X0 += initVal['HH']
             else: self.X0 += models['HH']
-            idx.update({'HH': {'V': i, 'm': i+1, 'h': i+2, 'n': i+3}})
+            idx.update({'V': i, 'm': i+1, 'h': i+2, 'n': i+3})
             i += len(initVal['HH'])
             self.V = 0
 
         if 'PMCA' in models:
             if models['PMCA'] == []: self.X0 += initVal['PMCA']
             else: self.X0 += models['PMCA']
-            idx.update({'PMCA': {'PMCA0': i, 'PMCA1': i+1, 'PMCA2': i+2}})
+            idx.update({'PMCA0': i, 'PMCA1': i+1, 'PMCA2': i+2})
             i += len(initVal['PMCA'])
 
         if 'VDCC' in models:
             if models['VDCC'] == []: self.X0 += initVal['VDCC']
             else: self.X0 += models['VDCC']
-            idx.update({'VDCC': {'VDCC_C0': i,   'VDCC_C1': i+1, 'VDCC_C2': i+2,
-                                 'VDCC_C3': i+3, 'VDCC_O' : i+4}
-                       })
+            idx.update({'VDCC_C0': i,   'VDCC_C1': i+1, 'VDCC_C2': i+2,
+                        'VDCC_C3': i+3, 'VDCC_O' : i+4 })
             i += len(initVal['VDCC'])
             self.V = 0
 
         if 'calbindin' in models:
             if models['calbindin'] == []: self.X0 += initVal['calbindin']
             else: self.X0 += models['calbindin']
-            idx.update({'calbindin': {'cbH0M0': i,   'cbH0M1': i+1, 'cbH0M2': i+2,
-                                      'cbH1M0': i+3, 'cbH1M1': i+4, 'cbH1M2': i+5,
-                                      'cbH2M0': i+6, 'cbH2M1': i+7, 'cbH2M2': i+8}
-                      })
+            idx.update({'cbH0M0': i,   'cbH0M1': i+1, 'cbH0M2': i+2,
+                        'cbH1M0': i+3, 'cbH1M1': i+4, 'cbH1M2': i+5,
+                        'cbH2M0': i+6, 'cbH2M1': i+7, 'cbH2M2': i+8})
             i += len(initVal['calbindin'])
 
         if 'caSensor' in models:
             if models['caSensor'] == []: self.X0 += initVal['caSensor']
             else: self.X0 += models['caSensor']
-            idx.update({'caSensor': {'CaS00': i+0,  'CaS10': i+1,  'CaS20': i+2,
-                                     'CaS30': i+3,  'CaS40': i+4,  'CaS50': i+5,
-                                     'CaS01': i+6,  'CaS11': i+7,  'CaS21': i+8,
-                                     'CaS31': i+9,  'CaS41': i+10, 'CaS51': i+11,
-                                     'CaS02': i+12, 'CaS12': i+13, 'CaS22': i+14,
-                                     'CaS32': i+15, 'CaS42': i+16, 'CaS52': i+17}
-                       })
+            idx.update({'CaS00': i+0,  'CaS10': i+1,  'CaS20': i+2,
+                        'CaS30': i+3,  'CaS40': i+4,  'CaS50': i+5,
+                        'CaS01': i+6,  'CaS11': i+7,  'CaS21': i+8,
+                        'CaS31': i+9,  'CaS41': i+10, 'CaS51': i+11,
+                        'CaS02': i+12, 'CaS12': i+13, 'CaS22': i+14,
+                        'CaS32': i+15, 'CaS42': i+16, 'CaS52': i+17})
 
         self.nVar = i
         result.data.update({self.name: idx})

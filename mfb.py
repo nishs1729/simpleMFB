@@ -4,6 +4,7 @@
 from scipy import arange
 from numpy import *
 import time
+import os
 from matplotlib.pyplot import *
 from scipy.integrate import *
 
@@ -12,8 +13,8 @@ from MFBfunctions import *
 
 print "Setting up system"
 ### Simulation time
-ti, tf = 0.0, 10e-3
-tstep = 1e-5
+ti, tf = 0.0, 1000e-3
+tstep = 1e-4
 t_eval = arange(0.0, tf, tstep)
 
 ### Geometrical arrangement of all the compartments
@@ -32,9 +33,11 @@ modelInput = '''[0:2:2, 0:20:4, 0:2:3]
 #                [0,1:3,0:3]
 #                [1:2:2,1:2:2,1:2:2]'''
 #modelInput = "[0:5,0:5,0:5]"
+modelInput = "[0:2,0:2,0:2]"
 
 ### MFB bounding box
 bb = [40, 20, 10]
+bb = [2, 2, 2]
 boundingBox = "[0:" + str(bb[0]) + ",0:" + str(bb[1]) + ",0:" + str(bb[2]) + "]"
 
 ### Get all the compartments as
@@ -46,7 +49,7 @@ cmpts = compartments(modelInput)
 ### there are no gaps in the model
 print "cheching geometry"
 if checkGeometry(boundingBox, cmpts):
-    print 'Go ahead! All good with the geometry. Take a look at it yourself'
+    print 'Go ahead! All good with the geometry'
     print 'Number of compartments:', len(cmpts)
     #plotCompartments(cmpts, bb)
 else:
@@ -114,6 +117,28 @@ sol = solve_ivp(dXdt, [ti, tf], X0, t_eval=t_eval)
 #sol = odeint(dXdt, X0, t_eval).T
 timef = time.time()
 print '\nDONE! | Time elapsed: ', timef-timei
+
+t = sol.t
+y = sol.y
+
+for cname, idx in cmpi.items():
+    for vname, v in result.data[cname].items():
+            result.data[cname][vname] = y[idx+v]
+
+#print result.data
+
+simName = 'trial/'
+for cname, c in result.data.items():
+    header = 't\t\t'
+    vname = [k for k in sorted(c.iterkeys())]
+    for vn in vname:
+        header += vn + '\t\t'
+    v = array([t] + [c[k] for k in sorted(c.iterkeys())]).T
+    dir = 'data/'+simName
+    if not os.path.exists(dir):
+        os.makedirs(dir)
+    savetxt(dir+cname+'.txt', v, header=header, fmt='%.4e', delimiter='\t')
+
 
 '''
 ### Plot some results

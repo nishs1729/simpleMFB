@@ -1,7 +1,7 @@
 # folders
 archive
 parallel
-.ipynb_*
+data
 
 # compiled objects
 *.pyc
@@ -16,3 +16,6 @@ parallel
 *.svg
 *.ico
 *.psd
+
+# others
+.ipynb_*
