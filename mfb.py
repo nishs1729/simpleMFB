@@ -5,16 +5,16 @@ from scipy import arange
 from numpy import *
 import time
 from matplotlib.pyplot import *
-from scipy.integrate import odeint
+from scipy.integrate import *
 
 from modelEquations import *
 from MFBfunctions import *
 
 print "Setting up system"
 ### Simulation time
-ti, tf = 0.0, 50e-3
-tstep = 1e-4
-t = arange(0.0, tf, tstep)
+ti, tf = 0.0, 10e-3
+tstep = 1e-5
+t_eval = arange(0.0, tf, tstep)
 
 ### Geometrical arrangement of all the compartments
 ### a:n   = a, a+1, a+2,...,n-1
@@ -47,7 +47,8 @@ cmpts = compartments(modelInput)
 print "cheching geometry"
 if checkGeometry(boundingBox, cmpts):
     print 'Go ahead! All good with the geometry. Take a look at it yourself'
-    plotCompartments(cmpts, bb)
+    print 'Number of compartments:', len(cmpts)
+    #plotCompartments(cmpts, bb)
 else:
     exit()
 
@@ -75,7 +76,7 @@ cmpi = initialIndex(cModels)
 
 
 ### Putting all compartments together
-def dXdt(X, t):
+def dXdt(t, X):
     dX = []
     j=0
     for cm in cModels:
@@ -83,6 +84,8 @@ def dXdt(X, t):
         cm.V = cModels[0].V
 
         ## Collect dX values from each compartment
+        #print X
+        #print X[j:j+cm.nVar]
         dX += cm.dXdt(X[j:j+cm.nVar], t)
 
         # Calcium Flux
@@ -105,16 +108,19 @@ for cm in cModels:
 print 'Total number of equations:', len(X0)
 
 ### Solve ODE
-ti = time.time()
+timei = time.time()
 print "solving the ODE"
-sol = odeint(dXdt, X0, t).T
-tf = time.time()
-print '\nDONE! | Time elapsed: ', tf-ti
+sol = solve_ivp(dXdt, [ti, tf], X0, t_eval=t_eval)
+#sol = odeint(dXdt, X0, t_eval).T
+timef = time.time()
+print '\nDONE! | Time elapsed: ', timef-timei
 
+'''
 ### Plot some results
+y = sol.y
 fig, ax = subplots()
-for s in sol[:4]:
-    figY = plot(t*1e3, s, lw=1)
+for s in y[:4]:
+    figY = plot(t_eval*1e3, s, lw=1)
 
 show()
 #'''
