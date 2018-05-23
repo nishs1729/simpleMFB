@@ -1,0 +1,18 @@
+# folders
+archive
+parallel
+.ipynb*
+
+# compiled objects
+*.pyc
+*.pyo
+
+# images
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*.svg
+*.ico
+*.psd
