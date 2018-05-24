@@ -1,6 +1,6 @@
-#!/usr/bin/env python
 # -*- coding: latin-1 -*-
 
+#!/usr/bin/env python
 from scipy import arange
 from numpy import *
 import time
@@ -12,11 +12,11 @@ from modelEquations import *
 from MFBfunctions import *
 
 print "Setting up system..."
+simName = 'trial/'
 ### Simulation time
-ti, tf = 0.0, 100e-3
-tstep = 1e-4
-t_eval = arange(0.0, tf, tstep)
-#tcp = 100e-3
+ti, tf = 0.0, 300e-3
+tstep = 1e-3
+tcp = 100e-3
 
 ### Geometrical arrangement of all the compartments
 ### a:n   = a, a+1, a+2,...,n-1
@@ -33,12 +33,12 @@ modelInput = '''[0:2:2, 0:20:4, 0:2:3]
 #                [0:3,1:3,0]
 #                [0,1:3,0:3]
 #                [1:2:2,1:2:2,1:2:2]'''
-modelInput = "[0:5,0:5,0:5]"
-modelInput = "[0:1,0:1,0:1]"
+modelInput = "[0:15,0:15,0:15]"
+#modelInput = "[0:2,0:1,0:1]"
 
 ### MFB bounding box
 bb = [40, 20, 10]
-bb = [1]*3
+bb = [15]*3 #+ [1]*2
 boundingBox = "[0:" + str(bb[0]) + ",0:" + str(bb[1]) + ",0:" + str(bb[2]) + "]"
 
 ### Get all the compartments as
@@ -61,12 +61,12 @@ else:
 cModels = []
 f = 1.0
 for cname, cdim in [[k, cmpts[k]] for k in sorted(cmpts.iterkeys())]: # sorted by name
-    cModels.append(mfb({'Ca':[f*7e-7], 'PMCA': [], 'calbindin': []},# 'PMCA': [], 'calbindin': []},
+    cModels.append(mfb({'Ca':[f*7e-7], 'PMCA': []},# 'PMCA': [], 'calbindin': []},
                   name = cname,
                   dim = cdim,
                   nbrs = getNeighbours({cname: cdim}, cmpts))
                  )
-    f += 1.1
+    f += 1
 '''
 c0 = '0-0-0'
 cModels[0] = mfb({'Ca':[], 'PMCA': [], 'calbindin': []},
@@ -92,7 +92,7 @@ def dXdt(t, X):
     global tt
     if t>tt:
         print 't =', tt
-        tt += 0.01
+        tt += tcp/100
 
 
     dX = []
@@ -124,32 +124,61 @@ print 'Total number of equations:', len(X0)
 ### Solve ODE
 timei = time.time()
 print "solving the ODE..."
-sol = solve_ivp(dXdt, [ti, tf], X0, t_eval=t_eval, rtol=1e-6, atol=1e-10)
-#sol = odeint(dXdt, X0, t_eval).T
+
+tinterval = []
+aa = arange(ti, tf, tcp)
+for i in range(len(aa[:-1])):
+    tinterval += [[aa[i], aa[i+1]]]
+tinterval += [[aa[-1], tf]]
+
+#set_printoptions(precision=4)
+
+temp =  1
+for ti, tf in tinterval:
+    #t_eval = arange(ti, tf, tstep)
+    t_eval = linspace(ti, tf, round((tf - ti)/tstep) + 1)[:-1]
+
+    sol = solve_ivp(dXdt, [ti, tf], X0, t_eval=t_eval, rtol=1e-3, atol=1e-6)
+
+    ### Last values of sol as X0
+    X0 = sol.y.T[-1]
+
+    ### Adding sol to solution till previous checkpoint
+    if temp:
+        t = sol.t
+        y = sol.y
+        temp = 0
+    else:
+        t = concatenate((t, sol.t))
+        y = concatenate((y, sol.y), axis=1)
+
+    ### Saving data till current checkpoint in files
+    tsavei = time.time()
+    for cm in cModels:
+        header = 't\t\t'
+        vname = sorted(result.data[cm.name].iteritems(), key=lambda (k,v): (v,k))
+        for vn in vname:
+            header += vn[0] + '\t\t'
+
+        v = concatenate(([t], y[cmpi[cm.name]:cmpi[cm.name]+cm.nVar])).T
+
+        dir = 'data/'+simName
+        if not os.path.exists(dir):
+            os.makedirs(dir)
+        savetxt(dir+cm.name+'.txt', v, header=header, fmt='%.4e', delimiter='\t')
+
+    tsavef = time.time()
+    print 'Time taken for saving:', tsavef - tsavei
+
 timef = time.time()
 print '\nDONE! | Time elapsed: ', timef-timei
+'''
 
-t = sol.t
-y = sol.y
-
+### Organise data in result.data dictionary
 for cname, idx in cmpi.items():
     for vname, v in result.data[cname].items():
+        print idx, v
         result.data[cname][vname] = y[idx+v]
-
-'''
-### Save all the variables in files
-simName = 'trial/'
-for cname, c in result.data.items():
-    header = 't\t\t'
-    vname = [k for k in sorted(c.iterkeys())]
-    for vn in vname:
-        header += vn + '\t\t'
-    v = array([t] + [c[k] for k in sorted(c.iterkeys())]).T
-    dir = 'data/'+simName
-    if not os.path.exists(dir):
-        os.makedirs(dir)
-    savetxt(dir+cname+'.txt', v, header=header, fmt='%.4e', delimiter='\t')
-#'''
 
 
 ### Plot some results
