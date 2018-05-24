@@ -11,11 +11,12 @@ from scipy.integrate import *
 from modelEquations import *
 from MFBfunctions import *
 
-print "Setting up system"
+print "Setting up system..."
 ### Simulation time
-ti, tf = 0.0, 1000e-3
+ti, tf = 0.0, 100e-3
 tstep = 1e-4
 t_eval = arange(0.0, tf, tstep)
+#tcp = 100e-3
 
 ### Geometrical arrangement of all the compartments
 ### a:n   = a, a+1, a+2,...,n-1
@@ -32,12 +33,12 @@ modelInput = '''[0:2:2, 0:20:4, 0:2:3]
 #                [0:3,1:3,0]
 #                [0,1:3,0:3]
 #                [1:2:2,1:2:2,1:2:2]'''
-#modelInput = "[0:5,0:5,0:5]"
-modelInput = "[0:2,0:2,0:2]"
+modelInput = "[0:5,0:5,0:5]"
+modelInput = "[0:1,0:1,0:1]"
 
 ### MFB bounding box
 bb = [40, 20, 10]
-bb = [2, 2, 2]
+bb = [1]*3
 boundingBox = "[0:" + str(bb[0]) + ",0:" + str(bb[1]) + ",0:" + str(bb[2]) + "]"
 
 ### Get all the compartments as
@@ -47,7 +48,7 @@ cmpts = compartments(modelInput)
 
 ### Check if no compartment have overlapping volumes and
 ### there are no gaps in the model
-print "cheching geometry"
+print "cheching geometry..."
 if checkGeometry(boundingBox, cmpts):
     print 'Go ahead! All good with the geometry'
     print 'Number of compartments:', len(cmpts)
@@ -58,45 +59,55 @@ else:
 
 ### List of model objects for each compartment
 cModels = []
+f = 1.0
 for cname, cdim in [[k, cmpts[k]] for k in sorted(cmpts.iterkeys())]: # sorted by name
-    cModels.append(mfb({'Ca':[], 'PMCA': [], 'calbindin': []},
+    cModels.append(mfb({'Ca':[f*7e-7], 'PMCA': [], 'calbindin': []},# 'PMCA': [], 'calbindin': []},
                   name = cname,
                   dim = cdim,
                   nbrs = getNeighbours({cname: cdim}, cmpts))
                  )
-
+    f += 1.1
+'''
 c0 = '0-0-0'
-cModels[0] = mfb({'Ca':[], 'HH':[], 'PMCA': [], 'calbindin': []},
+cModels[0] = mfb({'Ca':[], 'PMCA': [], 'calbindin': []},
                  name = c0,
                  dim = cmpts[c0],
                  nbrs = getNeighbours({c0: cmpts[c0]}, cmpts))
-
-### print model details
-#for cm in cModels: print cm.name, cm.dim, cm.nbrs, cm.nVar
+'''
 
 ### Make a list of initial index of each compartment
 cmpi = initialIndex(cModels)
 
-
+'''
+### print model details
+for cm in cModels:
+    print cm.name, cm.dim, cm.nbrs, cmpi[cm.name]
+    for n in cm.nbrs:
+        print cmpi[n]
+#'''
+tt=0.0
+flux = 1e4
 ### Putting all compartments together
 def dXdt(t, X):
+    global tt
+    if t>tt:
+        print 't =', tt
+        tt += 0.01
+
+
     dX = []
     j=0
     for cm in cModels:
         # All compartments have V value of (0,0,0)th compartment
-        cm.V = cModels[0].V
+        #cm.V = cModels[0].V
 
         ## Collect dX values from each compartment
-        #print X
-        #print X[j:j+cm.nVar]
         dX += cm.dXdt(X[j:j+cm.nVar], t)
 
         # Calcium Flux
         caFlux = 0
-        flux = 1e4
         for nbr in cm.nbrs:
             caFlux += flux*(X[cmpi[nbr]] - X[j]) #ADΔ(Ca)/Δx
-
         dX[j] += caFlux
 
         j += cm.nVar # increment counter to 1st element of next compartment
@@ -112,8 +123,8 @@ print 'Total number of equations:', len(X0)
 
 ### Solve ODE
 timei = time.time()
-print "solving the ODE"
-sol = solve_ivp(dXdt, [ti, tf], X0, t_eval=t_eval)
+print "solving the ODE..."
+sol = solve_ivp(dXdt, [ti, tf], X0, t_eval=t_eval, rtol=1e-6, atol=1e-10)
 #sol = odeint(dXdt, X0, t_eval).T
 timef = time.time()
 print '\nDONE! | Time elapsed: ', timef-timei
@@ -123,10 +134,10 @@ y = sol.y
 
 for cname, idx in cmpi.items():
     for vname, v in result.data[cname].items():
-            result.data[cname][vname] = y[idx+v]
+        result.data[cname][vname] = y[idx+v]
 
-#print result.data
-
+'''
+### Save all the variables in files
 simName = 'trial/'
 for cname, c in result.data.items():
     header = 't\t\t'
@@ -138,14 +149,17 @@ for cname, c in result.data.items():
     if not os.path.exists(dir):
         os.makedirs(dir)
     savetxt(dir+cname+'.txt', v, header=header, fmt='%.4e', delimiter='\t')
+#'''
 
 
-'''
 ### Plot some results
-y = sol.y
-fig, ax = subplots()
-for s in y[:4]:
-    figY = plot(t_eval*1e3, s, lw=1)
+if len(sys.argv) > 1:
+    fig, ax = subplots()
+    for cname, c in result.data.items():
+        for vname, v in result.data[cname].items():
+            if vname == 'Ca':
+                figY = plot(t_eval*1e3, v, lw=1, label=vname)
 
-show()
+    legend()
+    show()
 #'''
