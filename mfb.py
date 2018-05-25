@@ -10,13 +10,18 @@ from scipy.integrate import *
 
 from modelEquations import *
 from MFBfunctions import *
+from parameters import *
+
+### Command line arguments
+commandArg(sys.argv)
 
 print "Setting up system..."
 simName = 'trial/'
+
 ### Simulation time
-ti, tf = 0.0, 300e-3
-tstep = 1e-3
-tcp = 100e-3
+ti, tf = 0.0, cmdArg['tf']
+tstep = cmdArg['tstep']
+tcp = cmdArg['tcp']
 
 ### Geometrical arrangement of all the compartments
 ### a:n   = a, a+1, a+2,...,n-1
@@ -29,16 +34,13 @@ modelInput = '''[0:2:2, 0:20:4, 0:2:3]
                 [2:38:2, 0:20:2, 2:3]
                 [2:38, 0:20, 0:2]
                 '''
-#modelInput = '''[0:3,0,0:3]
-#                [0:3,1:3,0]
-#                [0,1:3,0:3]
-#                [1:2:2,1:2:2,1:2:2]'''
-modelInput = "[0:15,0:15,0:15]"
+
+modelInput = "[0:1,0:1,0:1]"
 #modelInput = "[0:2,0:1,0:1]"
 
 ### MFB bounding box
-bb = [40, 20, 10]
-bb = [15]*3 #+ [1]*2
+#bb = [40, 20, 10]
+bb = [1]*3 #+ [1]*2
 boundingBox = "[0:" + str(bb[0]) + ",0:" + str(bb[1]) + ",0:" + str(bb[2]) + "]"
 
 ### Get all the compartments as
@@ -48,25 +50,23 @@ cmpts = compartments(modelInput)
 
 ### Check if no compartment have overlapping volumes and
 ### there are no gaps in the model
-print "cheching geometry..."
+print "checking geometry..."
 if checkGeometry(boundingBox, cmpts):
     print 'Go ahead! All good with the geometry'
     print 'Number of compartments:', len(cmpts)
-    #plotCompartments(cmpts, bb)
+    if cmdArg['geo']:
+        plotCompartments(cmpts, bb)
 else:
     exit()
 
-
 ### List of model objects for each compartment
 cModels = []
-f = 1.0
 for cname, cdim in [[k, cmpts[k]] for k in sorted(cmpts.iterkeys())]: # sorted by name
-    cModels.append(mfb({'Ca':[f*7e-7], 'PMCA': []},# 'PMCA': [], 'calbindin': []},
+    cModels.append(mfb({'Ca':[10e-7], 'PMCA': []},# 'PMCA': [], 'calbindin': []},
                   name = cname,
                   dim = cdim,
                   nbrs = getNeighbours({cname: cdim}, cmpts))
                  )
-    f += 1
 '''
 c0 = '0-0-0'
 cModels[0] = mfb({'Ca':[], 'PMCA': [], 'calbindin': []},
@@ -85,6 +85,7 @@ for cm in cModels:
     for n in cm.nbrs:
         print cmpi[n]
 #'''
+
 tt=0.0
 flux = 1e4
 ### Putting all compartments together
@@ -92,7 +93,7 @@ def dXdt(t, X):
     global tt
     if t>tt:
         print 't =', tt
-        tt += tcp/100
+        tt += tcp/10
 
 
     dX = []
@@ -153,36 +154,36 @@ for ti, tf in tinterval:
         y = concatenate((y, sol.y), axis=1)
 
     ### Saving data till current checkpoint in files
-    tsavei = time.time()
-    for cm in cModels:
-        header = 't\t\t'
-        vname = sorted(result.data[cm.name].iteritems(), key=lambda (k,v): (v,k))
-        for vn in vname:
-            header += vn[0] + '\t\t'
+    if cmdArg['save']:
+        tsavei = time.time()
+        for cm in cModels:
+            header = 't\t\t'
+            vname = sorted(result.data[cm.name].iteritems(), key=lambda (k,v): (v,k))
+            for vn in vname:
+                header += vn[0] + '\t\t'
 
-        v = concatenate(([t], y[cmpi[cm.name]:cmpi[cm.name]+cm.nVar])).T
+            v = concatenate(([t], y[cmpi[cm.name]:cmpi[cm.name]+cm.nVar])).T
 
-        dir = 'data/'+simName
-        if not os.path.exists(dir):
-            os.makedirs(dir)
-        savetxt(dir+cm.name+'.txt', v, header=header, fmt='%.4e', delimiter='\t')
+            dir = 'data/'+simName
+            if not os.path.exists(dir):
+                os.makedirs(dir)
+            savetxt(dir+cm.name+'.txt', v, header=header, fmt='%.4e', delimiter='\t')
 
-    tsavef = time.time()
-    print 'Time taken for saving:', tsavef - tsavei
+        tsavef = time.time()
+        print 'Time taken for saving:', tsavef - tsavei
 
 timef = time.time()
 print '\nDONE! | Time elapsed: ', timef-timei
-'''
+
 
 ### Organise data in result.data dictionary
 for cname, idx in cmpi.items():
     for vname, v in result.data[cname].items():
-        print idx, v
         result.data[cname][vname] = y[idx+v]
 
 
 ### Plot some results
-if len(sys.argv) > 1:
+if cmdArg['fig']:
     fig, ax = subplots()
     for cname, c in result.data.items():
         for vname, v in result.data[cname].items():

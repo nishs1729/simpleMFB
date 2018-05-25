@@ -2,6 +2,7 @@ from matplotlib.pyplot import *
 from numpy import *
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+from parameters import *
 
 ### Takes in location and size of each compartment
 ### and returns a dictionary of compartment name and
@@ -188,3 +189,9 @@ def initialIndex(cModels):
         i += cm.nVar
 
     return cmpi
+
+### Command line arguments
+def commandArg(argv):
+    for a in argv[1:]:
+        a = a.split('=')
+        cmdArg.update({a[0]: float(a[1])})

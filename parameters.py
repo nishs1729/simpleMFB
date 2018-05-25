@@ -9,6 +9,16 @@ initVal = {
     'calbindin': [45e-6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 }
 
+### Command line arguments
+cmdArg = {
+    'tcp'  : 50e-3,
+    'geo'  : 0,
+    'save' : 1,
+    'tf'   : 100e-3,
+    'tstep': 1e-3,
+    'fig'  : 0
+}
+
 #### Parameters
 # HH
 C_m  = 1.0
