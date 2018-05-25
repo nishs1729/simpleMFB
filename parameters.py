@@ -16,7 +16,9 @@ cmdArg = {
     'save' : 1,
     'tf'   : 100e-3,
     'tstep': 1e-3,
-    'fig'  : 0
+    'fig'  : 0,
+    'rtol' : 1e-4,
+    'atol' : 1e-10
 }
 
 #### Parameters

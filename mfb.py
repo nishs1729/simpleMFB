@@ -139,7 +139,8 @@ for ti, tf in tinterval:
     #t_eval = arange(ti, tf, tstep)
     t_eval = linspace(ti, tf, round((tf - ti)/tstep) + 1)[:-1]
 
-    sol = solve_ivp(dXdt, [ti, tf], X0, t_eval=t_eval, rtol=1e-3, atol=1e-6)
+    sol = solve_ivp(dXdt, [ti, tf], X0, t_eval=t_eval,
+                    rtol=cmdArg['rtol'], atol=cmdArg['atol'])
 
     ### Last values of sol as X0
     X0 = sol.y.T[-1]
