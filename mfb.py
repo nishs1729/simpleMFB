@@ -4,9 +4,7 @@
 from scipy import arange
 from numpy import *
 import time
-import os
 from matplotlib.pyplot import *
-from scipy.integrate import *
 
 from modelEquations import *
 from MFBfunctions import *
@@ -19,9 +17,9 @@ print "Setting up system..."
 simName = 'trial/'
 
 ### Simulation time
-ti, tf = 0.0, cmdArg['tf']
-tstep = cmdArg['tstep']
-tcp = cmdArg['tcp']
+#ti, tf = 0.0, cmdArg['tf']
+#tstep = cmdArg['tstep']
+#tcp = cmdArg['tcp']
 
 ### Geometrical arrangement of all the compartments
 ### a:n   = a, a+1, a+2,...,n-1
@@ -76,7 +74,7 @@ cModels[0] = mfb({'Ca':[], 'PMCA': [], 'calbindin': []},
 '''
 
 ### Make a list of initial index of each compartment
-cmpi = initialIndex(cModels)
+#cmpi = initialIndex(cModels)
 
 '''
 ### print model details
@@ -86,6 +84,7 @@ for cm in cModels:
         print cmpi[n]
 #'''
 
+'''
 tt=0.0
 flux = 1e4
 ### Putting all compartments together
@@ -175,12 +174,9 @@ for ti, tf in tinterval:
 
 timef = time.time()
 print '\nDONE! | Time elapsed: ', timef-timei
+'''
 
-
-### Organise data in result.data dictionary
-for cname, idx in cmpi.items():
-    for vname, v in result.data[cname].items():
-        result.data[cname][vname] = y[idx+v]
+t, y = result.solve(cModels, cmpts, cmdArg=cmdArg)
 
 
 ### Plot some results
@@ -189,7 +185,7 @@ if cmdArg['fig']:
     for cname, c in result.data.items():
         for vname, v in result.data[cname].items():
             if vname == 'Ca':
-                figY = plot(t_eval*1e3, v, lw=1, label=vname)
+                figY = plot(t*1e3, v, lw=1, label=vname)
 
     legend()
     show()

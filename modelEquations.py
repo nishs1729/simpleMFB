@@ -3,10 +3,7 @@ from scipy import arange
 import matplotlib.ticker as mtick
 from pylab import *
 from parameters import *
-
-### The solution class
-class solution:
-    data = {}
+from MFBfunctions import *
 
 result = solution()
 
@@ -134,7 +131,8 @@ class mfb:
 
         ### VDCC
         if 'VDCC' in self.models:
-            dCa += 1.93*self.V*1e1*(0.3993 - exp(-self.V/80.36))/(1 - exp(self.V/80.36))*VDCC_O
+            dCa += 1.93*self.V*1e1*(0.3993 - exp(-self.V/80.36))/\
+                   (1 - exp(self.V/80.36))*VDCC_O
             dVDCC_C0 = + b1(self.V)*VDCC_C1 - a1(self.V)*VDCC_C0
             dVDCC_C1 = + a1(self.V)*VDCC_C0 + b2(self.V)*VDCC_C2 \
                        - (b1(self.V) + a2(self.V))*VDCC_C1
@@ -229,8 +227,9 @@ class mfb:
             dCaS52 =  + af*CaS51*Ca + sf*CaS42*Ca - 2*ab*b*CaS52 - 5*sb*b**4*CaS52
 
 
-            self.dX += [dCaS00, dCaS10, dCaS20, dCaS30, dCaS40, dCaS50, dCaS01, dCaS11, dCaS21,\
-                        dCaS31, dCaS41, dCaS51, dCaS02, dCaS12, dCaS22, dCaS32, dCaS42, dCaS52]
+            self.dX += [dCaS00, dCaS10, dCaS20, dCaS30, dCaS40, dCaS50, \
+                        dCaS01, dCaS11, dCaS21, dCaS31, dCaS41, dCaS51, \
+                        dCaS02, dCaS12, dCaS22, dCaS32, dCaS42, dCaS52]
             self.dX[0] += dCa
 
         return  self.dX
