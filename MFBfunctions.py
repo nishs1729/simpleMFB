@@ -31,8 +31,6 @@ def compartments(modelInput):
                 temp.append(1)
 
         arr += temp
-        #print 'arr:', arr
-
 
         for i in arr[0]:
             for j in arr[1]:
@@ -43,16 +41,13 @@ def compartments(modelInput):
     return cmpts
 
 ### Check if no compartment have overlapping volumes and
-### there are no gaps in the model
+### there are no gaps in the model.
 ### comp is the bounding box of all compartments broken into
-### smallest cubic unit. For eg. "[0:3,0:3,0:3]"
-### cmpts is the dictionary of all the compartments
+### smallest cubic unit. For eg. "[0:3,0:3,0:3]".
+### cmpts is the dictionary of all the compartments.
 def checkGeometry(boundingBox, cmpts):
     sCubes = compartments(boundingBox)
-    #for k in sorted(sCubes.iterkeys()):
-    #    print "%s: %s" % (k, sCubes[k])
 
-    #sCubes = {'2-2-2': [2, 2, 2, 1, 1, 1]}
     gap = []
     overlap = []
     for sc in sCubes.values():
@@ -77,8 +72,6 @@ def checkGeometry(boundingBox, cmpts):
         print 'overlaps:', overlap
         return False
 
-#sCubes = "[0:3, 0:3, 0:3]"
-#print checkGeometry(sCubes, cmpts)
 
 ### Check if two compartments a amd b are neighbours
 ### Returns False if they are not neighbours
@@ -97,7 +90,6 @@ def isNeighbour(a,b):
             if dy*dz==0:
                 return False
             else:
-                #print a, b, '\n', 'dy, dz =', dy, dz
                 return dy*dz
 
         elif a[1] == b[1]+b[4] or a[1]+a[4] == b[1]:
@@ -107,7 +99,6 @@ def isNeighbour(a,b):
             if dx*dz==0:
                 return False
             else:
-                #print a, b, '\n', 'dx, dz =', dx, dz
                 return dx*dz
 
         elif a[2] == b[2]+b[5] or a[2]+a[5] == b[2]:
@@ -117,7 +108,6 @@ def isNeighbour(a,b):
             if dx*dy==0:
                 return False
             else:
-                #print a, b, '\n', 'dx, dy =', dx, dy
                 return dx*dy
 
     else:
@@ -133,7 +123,6 @@ def getNeighbours(c, cmpts):
             area = isNeighbour(v, nv)
             if area:
                 nbrs.append(nk)
-
     return nbrs
 
 
@@ -189,7 +178,6 @@ def initialIndex(cModels):
     for cm in cModels:
         cmpi.update({cm.name: i})
         i += cm.nVar
-
     return cmpi
 
 ### Command line arguments
@@ -202,7 +190,9 @@ def commandArg(argv):
 ### The solution class
 class solution:
     data = {}
+    t = 0
     tt = 0.0
+
     ### Putting all compartments together
     def dXdt(self, t, X):
         if t>self.tt:
@@ -212,13 +202,13 @@ class solution:
         dX = []
         j=0
         for cm in self.cModels:
-            # All compartments have V value of (0,0,0)th compartment
+            ## All compartments have V value of (0,0,0)th compartment
             #cm.V = cModels[0].V
 
             ## Collect dX values from each compartment
             dX += cm.dXdt(X[j:j+cm.nVar], t)
 
-            # Calcium Flux
+            ## Calcium Flux
             caFlux = 0
             for nbr in cm.nbrs:
                 caFlux += self.flux*(X[cmpi[nbr]] - X[j])
@@ -228,29 +218,26 @@ class solution:
 
         return dX
 
-    def solve(self, cModels, cmpts, cmdArg={}, simName = 'trial/', flux=1e4):
-
+    ### Solving the ODEs
+    def solve(self, cModels, cmdArg={}, simName = 'trial/', flux=1e4):
         self.cModels = cModels
         self.flux = flux
 
-        ### Make a list of initial index of each compartment
+        ## Make a list of initial index of each compartment
         cmpi = initialIndex(cModels)
 
-        t=0.0
-
-        ### Simulation time
+        ## Simulation time
         ti, tf = 0.0, cmdArg['tf']
         tstep = cmdArg['tstep']
         self.tcp = cmdArg['tcp']
 
-        ### initial values
+        ## initial values
         X0 = []
         for cm in cModels:
             X0 += cm.X0
-        #print 'X0:', X0,
         print 'Total number of equations:', len(X0)
 
-        ### Solve ODE
+        ## Solve ODE
         timei = time.time()
         print "solving the ODE..."
 
@@ -260,20 +247,16 @@ class solution:
             tinterval += [[aa[i], aa[i+1]]]
         tinterval += [[aa[-1], tf]]
 
-        #set_printoptions(precision=4)
-
         temp =  1
         for ti, tf in tinterval:
-            #t_eval = arange(ti, tf, tstep)
             t_eval = linspace(ti, tf, round((tf - ti)/tstep) + 1)[:-1]
 
             sol = solve_ivp(self.dXdt, [ti, tf], X0, t_eval=t_eval,
                             rtol=cmdArg['rtol'], atol=cmdArg['atol'])
 
-            ### Last values of sol as X0
+            ## Last values of sol as X0
             X0 = sol.y.T[-1]
-
-            ### Adding sol to solution till previous checkpoint
+            ## Adding sol to solution till previous checkpoint
             if temp:
                 t = sol.t
                 y = sol.y
@@ -282,7 +265,7 @@ class solution:
                 t = concatenate((t, sol.t))
                 y = concatenate((y, sol.y), axis=1)
 
-            ### Saving data till current checkpoint in files
+            ## Saving data till current checkpoint in files
             if cmdArg['save']:
                 tsavei = time.time()
                 for cm in cModels:
@@ -301,9 +284,8 @@ class solution:
                 tsavef = time.time()
                 print 'Time taken for saving:', tsavef - tsavei
 
-        ### Organise data in result.data dictionary
+        ## Organise data in result.data dictionary
         for cname, idx in cmpi.items():
             for vname, v in self.data[cname].items():
                 self.data[cname][vname] = y[idx+v]
-
-        return t, y
+        self.t = t
