@@ -3,22 +3,24 @@ from numpy import *
 initVal = {
     'Ca':        [100e-9],
     'HH':        [-65.0, 0.05, 0.6, 0.32],
-    'PMCA':      [2.98e-6, 0.0, 0.0],
+    'PMCA':      [2.39e-6, 5.82e-7, 4.54e-10], # Total conc. = 2.98e-6 uM
     'caSensor':  [1.65e-6] + [0.0]*17,
     'VDCC':      [80e-6, 0.0, 0.0, 0.0, 0.0],
-    'calbindin': [45e-6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    'calbindin': [1.48e-05, 7.00e-06, 8.27e-07, 1.21e-05, 5.74e-06, 6.79e-07,
+                  2.49e-06, 1.18e-06, 1.39e-07] # Total conc. = 45e-6 uM
 }
 
 ### Command line arguments
 cmdArg = {
     'tcp'  : 50e-3,
     'geo'  : 0,
-    'save' : 1,
+    'save' : 0,
     'tf'   : 100e-3,
     'tstep': 1e-3,
     'fig'  : 0,
     'rtol' : 1e-4,
-    'atol' : 1e-10
+    'atol' : 1e-10,
+    'simName': 'trial/'
 }
 
 #### Parameters

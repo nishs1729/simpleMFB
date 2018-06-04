@@ -52,11 +52,11 @@ else:
 ### List of model objects for each compartment
 cModels = []
 for cname, cdim in [[k, cmpts[k]] for k in sorted(cmpts.iterkeys())]: # sorted by name
-    cModels.append(mfb({'Ca':[10e-7], 'PMCA': []},# 'PMCA': [], 'calbindin': []},
-                  name = cname,
-                  dim = cdim,
-                  nbrs = getNeighbours({cname: cdim}, cmpts))
-                 )
+    cModels.append(mfb({'Ca':[1e-7], 'PMCA': [], 'calbindin': [], 'caSensor': []},
+                   name = cname,
+                   dim = cdim,
+                   nbrs = getNeighbours({cname: cdim}, cmpts))
+                   )
 '''
 c0 = '0-0-0'
 cModels[0] = mfb({'Ca':[], 'PMCA': [], 'calbindin': []},
@@ -71,7 +71,8 @@ if cmdArg['fig']:
     fig, ax = subplots()
     for cname, c in result.data.items():
         for vname, v in result.data[cname].items():
-            if vname == 'Ca':
-                plot(result.t*1e3, v, lw=1, label=vname)
+            #if 'Ca' in vname: print vname, v[-1]
+            #if vname == 'Ca':
+            plot(result.t*1e3, v, lw=1, label=vname)
     legend()
     show()#'''

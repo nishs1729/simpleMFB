@@ -191,13 +191,12 @@ def commandArg(argv):
 class solution:
     data = {}
     t = 0
-    tt = 0.0
 
     ### Putting all compartments together
     def dXdt(self, t, X):
-        if t>self.tt:
-            print 't =', self.tt
-            self.tt += self.tcp/10
+        if t>self.t:
+            print 't =', self.t
+            self.t += self.tcp/5
 
         dX = []
         j=0
@@ -247,7 +246,7 @@ class solution:
             tinterval += [[aa[i], aa[i+1]]]
         tinterval += [[aa[-1], tf]]
 
-        temp =  1
+        temp = 1
         for ti, tf in tinterval:
             t_eval = linspace(ti, tf, round((tf - ti)/tstep) + 1)[:-1]
 
@@ -276,7 +275,7 @@ class solution:
 
                     v = concatenate(([t], y[cmpi[cm.name]:cmpi[cm.name]+cm.nVar])).T
 
-                    dir = 'data/'+simName
+                    dir = 'data/'+cmdArg['simName']
                     if not os.path.exists(dir):
                         os.makedirs(dir)
                     savetxt(dir+cm.name+'.txt', v, header=header, fmt='%.4e', delimiter='\t')

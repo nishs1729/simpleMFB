@@ -3,10 +3,9 @@ from scipy import arange
 import matplotlib.ticker as mtick
 from pylab import *
 from parameters import *
-from MFBfunctions import *
+from MFBfunctions import solution
 
 result = solution()
-
 
 class mfb:
     def __init__(self, models, name, dim, nbrs={}):
@@ -63,10 +62,11 @@ class mfb:
                         'CaS31': i+9,  'CaS41': i+10, 'CaS51': i+11,
                         'CaS02': i+12, 'CaS12': i+13, 'CaS22': i+14,
                         'CaS32': i+15, 'CaS42': i+16, 'CaS52': i+17})
+            i += len(initVal['caSensor'])
 
         self.nVar = i
         result.data.update({self.name: idx})
-        #print 'X0:', self.X0, '\n', idx, '\n', self.nVar, '\n\n'
+        #rint 'X0:', self.X0, '\n', idx, '\n', self.nVar, '\n\n'
 
 
     def dXdt(self, X, t):
@@ -131,8 +131,7 @@ class mfb:
 
         ### VDCC
         if 'VDCC' in self.models:
-            dCa += 1.93*self.V*1e1*(0.3993 - exp(-self.V/80.36))/\
-                   (1 - exp(self.V/80.36))*VDCC_O
+            dCa += 1.93*self.V*1e1*(0.3993 - exp(-self.V/80.36))/(1 - exp(self.V/80.36))*VDCC_O
             dVDCC_C0 = + b1(self.V)*VDCC_C1 - a1(self.V)*VDCC_C0
             dVDCC_C1 = + a1(self.V)*VDCC_C0 + b2(self.V)*VDCC_C2 \
                        - (b1(self.V) + a2(self.V))*VDCC_C1
@@ -149,8 +148,8 @@ class mfb:
         if 'calbindin' in self.models:
             dCa +=   + cbMoff*(cbH2M1 + cbH1M1 + cbH0M1 + 2*(cbH2M2 + cbH1M2 + cbH0M2)) \
                      + cbHoff*(cbH2M1 + cbH1M1 + cbH0M1 + 2*(cbH2M2 + cbH2M1 + cbH0M0)) \
-                  - (+ cbMon*(cbH2M1 + cbH1M1 + cbH0M1 + 2*(cbH2M0 + cbH1M0 + cbH0M0))  \
-                     + cbHon*(cbH2M1 + cbH1M1 + cbH0M1 + 2*(cbH0M2 + cbH0M1 + cbH0M0)) )*Ca
+                  - (+ cbMon*(cbH2M1 + cbH1M1 + cbH0M1  + 2*(cbH2M0 + cbH1M0 + cbH0M0)) \
+                     + cbHon*(cbH2M1 + cbH1M1 + cbH0M1  + 2*(cbH0M2 + cbH0M1 + cbH0M0)) )*Ca
 
             dcbH0M0 = - 2*(cbMon+cbHon)*cbH0M0*Ca + cbMoff*cbH0M1 + cbHoff*cbH1M0
 
@@ -163,10 +162,10 @@ class mfb:
                       + cbMoff*cbH1M1   + cbHoff*(2*cbH2M0 - cbH1M0)
 
             dcbH1M1 = - ((cbMon + cbHon)*Ca + (cbHoff + cbMoff))*cbH1M1\
-                      + 2*((cbMoff*cbH1M2 + cbHoff*cbH2M1) + 2*(cbMon*cbH1M0 + cbHon*cbH0M1)*Ca)
+                      + 2*((cbMoff*cbH1M2 + cbHoff*cbH2M1) + (cbMon*cbH1M0 + cbHon*cbH0M1)*Ca)
 
-            dcbH1M2 = + cbMon*cbH1M1*Ca - 2*cbMoff*cbH1M2 - cbHon*cbH1M2*Ca + 2*cbHoff*cbH2M2 \
-                      + 2*cbHon*cbH0M2*Ca - cbHoff*cbH1M2
+            dcbH1M2 = + (cbMon*cbH1M1 + 2*cbHon*cbH0M2 - cbHon*cbH1M2)*Ca\
+                      - (2*cbMoff + cbHoff)*cbH1M2 + 2*cbHoff*cbH2M2
 
             dcbH2M0 = + cbMoff*cbH2M1 + cbHon*cbH1M0*Ca - 2*(cbHoff + cbMon*Ca)*cbH2M0
 
@@ -227,9 +226,8 @@ class mfb:
             dCaS52 =  + af*CaS51*Ca + sf*CaS42*Ca - 2*ab*b*CaS52 - 5*sb*b**4*CaS52
 
 
-            self.dX += [dCaS00, dCaS10, dCaS20, dCaS30, dCaS40, dCaS50, \
-                        dCaS01, dCaS11, dCaS21, dCaS31, dCaS41, dCaS51, \
-                        dCaS02, dCaS12, dCaS22, dCaS32, dCaS42, dCaS52]
+            self.dX += [dCaS00, dCaS10, dCaS20, dCaS30, dCaS40, dCaS50, dCaS01, dCaS11, dCaS21,\
+                        dCaS31, dCaS41, dCaS51, dCaS02, dCaS12, dCaS22, dCaS32, dCaS42, dCaS52]
             self.dX[0] += dCa
 
         return  self.dX
