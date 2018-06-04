@@ -246,6 +246,14 @@ class solution:
             tinterval += [[aa[i], aa[i+1]]]
         tinterval += [[aa[-1], tf]]
 
+        ## Saving data till current checkpoint in files
+        if cmdArg['save']:
+            dir = 'data/'+cmdArg['simName']
+            if not os.path.exists(dir):
+                os.makedirs(dir)
+            fname = dir+cm.name+'.txt'
+            file = open(fname, 'w')
+
         temp = 1
         for ti, tf in tinterval:
             t_eval = linspace(ti, tf, round((tf - ti)/tstep) + 1)[:-1]
@@ -255,14 +263,6 @@ class solution:
 
             ## Last values of sol as X0
             X0 = sol.y.T[-1]
-            ## Adding sol to solution till previous checkpoint
-            if temp:
-                t = sol.t
-                y = sol.y
-                temp = 0
-            else:
-                t = concatenate((t, sol.t))
-                y = concatenate((y, sol.y), axis=1)
 
             ## Saving data till current checkpoint in files
             if cmdArg['save']:
@@ -273,16 +273,25 @@ class solution:
                     for vn in vname:
                         header += vn[0] + '\t\t'
 
-                    v = concatenate(([t], y[cmpi[cm.name]:cmpi[cm.name]+cm.nVar])).T
-
-                    dir = 'data/'+cmdArg['simName']
-                    if not os.path.exists(dir):
-                        os.makedirs(dir)
-                    savetxt(dir+cm.name+'.txt', v, header=header, fmt='%.4e', delimiter='\t')
+                    v = concatenate(([sol.t], sol.y[cmpi[cm.name]:cmpi[cm.name]+cm.nVar])).T
+                    if temp:
+                        savetxt(file, v, header=header, fmt='%.4e', delimiter='\t')
+                    else:
+                        savetxt(file, v, fmt='%.4e', delimiter='\t')
 
                 tsavef = time.time()
                 print 'Time taken for saving:', tsavef - tsavei
 
+            ## Adding sol to solution till previous checkpoint
+            if temp:
+                t = sol.t
+                y = sol.y
+                temp = 0
+            else:
+                t = concatenate((t, sol.t))
+                y = concatenate((y, sol.y), axis=1)
+
+        file.close()
         ## Organise data in result.data dictionary
         for cname, idx in cmpi.items():
             for vname, v in self.data[cname].items():
