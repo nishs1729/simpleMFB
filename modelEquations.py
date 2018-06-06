@@ -13,7 +13,7 @@ class mfb:
         self.dim  = dim
         self.nbrs = nbrs
         self.vol  = reduce(lambda x, y: x*y, dim[3:])
-        print nbrs, dim, self.vol
+        #print nbrs, dim, self.vol
 
         # Indexing of the compartment variables
         i = 0

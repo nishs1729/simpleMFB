@@ -24,6 +24,9 @@ initVal = {
 }
 
 #### Parameters
+# Calcium diffusion constant
+diffCa = 220 # um^2/s
+
 # HH
 C_m  = 1.0
 g_Na = 120.0

@@ -2,6 +2,7 @@ from matplotlib.pyplot import *
 from scipy.integrate import *
 from numpy import *
 import os
+import operator as op
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from parameters import *
@@ -82,6 +83,12 @@ def isNeighbour(a,b):
           (a[2] <= b[2]+b[5] and a[2]+a[5] >= b[2])
 
     if nbr:
+        ## distance between the compartments, d
+        mida = a[:3] + a[3:]/2.0
+        midb = b[:3] + b[3:]/2.0
+        d = sqrt(reduce(op.add, map(lambda x, y: (x-y)**2, mida, midb)))
+
+        ## If a and b have an overlapping surface, return area and d
         if a[0] == b[0]+b[3] or a[0]+a[3] == b[0]:
             dy = min(abs(a[1]+a[4] - b[1]), abs(b[1]+b[4] - a[1]))
             dz = min(abs(a[2]+a[5] - b[2]), abs(b[2]+b[5] - a[2]))
@@ -89,7 +96,7 @@ def isNeighbour(a,b):
             if dy*dz==0:
                 return False
             else:
-                return dy*dz
+                return float(dy*dz), float(d)
 
         elif a[1] == b[1]+b[4] or a[1]+a[4] == b[1]:
             dx = min(abs(a[0]+a[3] - b[0]), abs(b[0]+b[3] - a[0]))
@@ -98,7 +105,7 @@ def isNeighbour(a,b):
             if dx*dz==0:
                 return False
             else:
-                return dx*dz
+                return float(dx*dz), float(d)
 
         elif a[2] == b[2]+b[5] or a[2]+a[5] == b[2]:
             dx = min(abs(a[0]+a[3] - b[0]), abs(b[0]+b[3] - a[0]))
@@ -107,7 +114,7 @@ def isNeighbour(a,b):
             if dx*dy==0:
                 return False
             else:
-                return dx*dy
+                return float(dx*dy), float(d)
 
     else:
         return False
@@ -118,7 +125,7 @@ def getNeighbours(cname, cdim, cmpts):
     nbrs = {}
     for nk,nv in cmpts.items():
         if not cname==nk:
-            area = isNeighbour(cdim, nv)
+            area = isNeighbour(array(cdim), array(nv))
             if area:
                 nbrs.update({nk: area})
     return nbrs
@@ -171,12 +178,13 @@ def plotCompartments(cmpts, bb):
 
 ### Make a list of initial index of each compartment
 def initialIndex(cModels):
-    cmpi = {}
+    cIdx = {}
     i = 0
-    for cm in cModels:
-        cmpi.update({cm.name: i})
+    for cname, cm in cModels.items():
+        #print cname, cModels[cname].nVar
+        cIdx.update({cname: i})
         i += cm.nVar
-    return cmpi
+    return cIdx
 
 ### Command line arguments
 def commandArg(argv):
@@ -192,24 +200,29 @@ class solution:
 
     ### Putting all compartments together
     def dXdt(self, t, X):
-        if t>self.t:
+        if t>=self.t:
             print 't =', self.t
             self.t += self.tcp/5
 
         dX = []
         j=0
-        for cm in self.cModels:
+        for cm in self.cModels.values():
             ## All compartments have V value of (0,0,0)th compartment
             #cm.V = cModels[0].V
-
-            ## Collect dX values from each compartment
-            dX += cm.dXdt(X[j:j+cm.nVar], t)
-
+            #print cm.name
             ## Calcium Flux
             caFlux = 0
-            for nbr, area in cm.nbrs.items():
-                caFlux += self.flux*(X[self.cmpi[nbr]] - X[j])
-            dX[j] += caFlux
+            for nbr, val in cm.nbrs.items():
+                area, d = val
+                caFlux += diffCa*area*(X[self.cIdx[nbr]] - X[j])/d
+                #if cm.name == '1-0-0':
+                    #print t, cm.name, area, d, diffCa, (X[self.cIdx[nbr]] - X[j]), caFlux
+
+            CaX = X[j:j+cm.nVar]
+            CaX[0] += caFlux
+
+            ## Collect dX values from each compartment
+            dX += cm.dXdt(CaX, t)
 
             j += cm.nVar # increment counter to 1st element of next compartment
 
@@ -221,7 +234,7 @@ class solution:
         self.flux = flux
 
         ## Make a list of initial index of each compartment
-        self.cmpi = initialIndex(cModels)
+        self.cIdx = initialIndex(self.cModels)
 
         ## Simulation time
         ti, tf = 0.0, cmdArg['tf']
@@ -230,7 +243,7 @@ class solution:
 
         ## initial values
         X0 = []
-        for cm in cModels:
+        for cm in self.cModels.values():
             X0 += cm.X0
         print 'Total number of equations:', len(X0)
 
@@ -265,13 +278,13 @@ class solution:
             ## Saving data till current checkpoint in files
             if cmdArg['save']:
                 tsavei = time.time()
-                for cm in cModels:
+                for cm in self.cModels:
                     header = 't\t\t'
                     vname = sorted(self.data[cm.name].iteritems(), key=lambda (k,v): (v,k))
                     for vn in vname:
                         header += vn[0] + '\t\t'
 
-                    v = concatenate(([sol.t], sol.y[self.cmpi[cm.name]:self.cmpi[cm.name]+cm.nVar])).T
+                    v = concatenate(([sol.t], sol.y[self.cIdx[cm.name]:self.cIdx[cm.name]+cm.nVar])).T
                     if temp:
                         savetxt(file, v, header=header, fmt='%.4e', delimiter='\t')
                     else:
@@ -292,7 +305,7 @@ class solution:
         if cmdArg['save']:
             file.close()
         ## Organise data in result.data dictionary
-        for cname, idx in self.cmpi.items():
+        for cname, idx in self.cIdx.items():
             for vname, v in self.data[cname].items():
                 self.data[cname][vname] = y[idx+v]
         self.t = t

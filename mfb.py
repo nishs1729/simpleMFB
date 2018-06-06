@@ -6,6 +6,7 @@ from matplotlib.pyplot import *
 from modelEquations import *
 from MFBfunctions import *
 from parameters import *
+from collections import OrderedDict as OD
 
 ### Command line arguments
 commandArg(sys.argv)
@@ -50,20 +51,21 @@ else:
     exit()
 
 ### List of model objects for each compartment
-cModels = []
+cModels = OD()
 for cname, cdim in [[k, cmpts[k]] for k in sorted(cmpts.iterkeys())]: # sorted by name
-    cModels.append(mfb({'Ca':[1e-7], 'PMCA': [], 'calbindin': [], 'caSensor': []},
+    cModels.update({cname: mfb({'Ca':[1e-7], 'PMCA': [], 'calbindin': [], 'caSensor': []},
                    name = cname,
                    dim = cdim,
-                   nbrs = getNeighbours(cname, cdim, cmpts))
+                   nbrs = getNeighbours(cname, cdim, cmpts))}
                    )
-'''
+
 c0 = '0-0-0'
-cModels[0] = mfb({'Ca':[], 'PMCA': [], 'calbindin': []},
-                 name = c0,
-                 dim = cmpts[c0],
-                 nbrs = getNeighbours({c0: cmpts[c0]}, cmpts))
-'''
+cModels.update({c0: mfb({'Ca':[100e-7], 'PMCA': [], 'calbindin': []},
+               name = c0,
+               dim = cmpts[c0],
+               nbrs = getNeighbours(c0, cmpts[c0], cmpts))}
+              )
+
 result.solve(cModels, cmdArg=cmdArg, simName = 'trial/', flux=1e4)
 
 ### Plot some results
