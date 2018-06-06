@@ -25,12 +25,12 @@ modelInput = '''[0:2:2, 0:20:4, 0:2:3]
                 [2:38, 0:20, 0:2]
                 '''
 
-modelInput = "[0:1,0:1,0:1]"
-#modelInput = "[0:2,0:1,0:1]"
+#modelInput = "[0:1,0:1,0:1]"
+modelInput = "[0:2,0:2,0:2]"
 
 ### MFB bounding box
 #bb = [40, 20, 10]
-bb = [1]*3 #+ [1]*2
+bb = [2]*3 #+ [1]*2
 boundingBox = "[0:" + str(bb[0]) + ",0:" + str(bb[1]) + ",0:" + str(bb[2]) + "]"
 
 ### Get all the compartments as
@@ -55,7 +55,7 @@ for cname, cdim in [[k, cmpts[k]] for k in sorted(cmpts.iterkeys())]: # sorted b
     cModels.append(mfb({'Ca':[1e-7], 'PMCA': [], 'calbindin': [], 'caSensor': []},
                    name = cname,
                    dim = cdim,
-                   nbrs = getNeighbours({cname: cdim}, cmpts))
+                   nbrs = getNeighbours(cname, cdim, cmpts))
                    )
 '''
 c0 = '0-0-0'

@@ -81,7 +81,6 @@ def isNeighbour(a,b):
           (a[1] <= b[1]+b[4] and a[1]+a[4] >= b[1]) and \
           (a[2] <= b[2]+b[5] and a[2]+a[5] >= b[2])
 
-
     if nbr:
         if a[0] == b[0]+b[3] or a[0]+a[3] == b[0]:
             dy = min(abs(a[1]+a[4] - b[1]), abs(b[1]+b[4] - a[1]))
@@ -115,14 +114,13 @@ def isNeighbour(a,b):
 
 ### Get all neighbours of a compartment c
 ### cmpts is the dictionary of all the compartments
-def getNeighbours(c, cmpts):
-    k, v = c.items()[0]
-    nbrs = []
+def getNeighbours(cname, cdim, cmpts):
+    nbrs = {}
     for nk,nv in cmpts.items():
-        if not k==nk:
-            area = isNeighbour(v, nv)
+        if not cname==nk:
+            area = isNeighbour(cdim, nv)
             if area:
-                nbrs.append(nk)
+                nbrs.update({nk: area})
     return nbrs
 
 
@@ -209,8 +207,8 @@ class solution:
 
             ## Calcium Flux
             caFlux = 0
-            for nbr in cm.nbrs:
-                caFlux += self.flux*(X[cmpi[nbr]] - X[j])
+            for nbr, area in cm.nbrs.items():
+                caFlux += self.flux*(X[self.cmpi[nbr]] - X[j])
             dX[j] += caFlux
 
             j += cm.nVar # increment counter to 1st element of next compartment
@@ -223,7 +221,7 @@ class solution:
         self.flux = flux
 
         ## Make a list of initial index of each compartment
-        cmpi = initialIndex(cModels)
+        self.cmpi = initialIndex(cModels)
 
         ## Simulation time
         ti, tf = 0.0, cmdArg['tf']
@@ -273,7 +271,7 @@ class solution:
                     for vn in vname:
                         header += vn[0] + '\t\t'
 
-                    v = concatenate(([sol.t], sol.y[cmpi[cm.name]:cmpi[cm.name]+cm.nVar])).T
+                    v = concatenate(([sol.t], sol.y[self.cmpi[cm.name]:self.cmpi[cm.name]+cm.nVar])).T
                     if temp:
                         savetxt(file, v, header=header, fmt='%.4e', delimiter='\t')
                     else:
@@ -291,9 +289,10 @@ class solution:
                 t = concatenate((t, sol.t))
                 y = concatenate((y, sol.y), axis=1)
 
-        file.close()
+        if cmdArg['save']:
+            file.close()
         ## Organise data in result.data dictionary
-        for cname, idx in cmpi.items():
+        for cname, idx in self.cmpi.items():
             for vname, v in self.data[cname].items():
                 self.data[cname][vname] = y[idx+v]
         self.t = t

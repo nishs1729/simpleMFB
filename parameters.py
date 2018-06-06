@@ -1,15 +1,5 @@
 from numpy import *
 
-initVal = {
-    'Ca':        [100e-9],
-    'HH':        [-65.0, 0.05, 0.6, 0.32],
-    'PMCA':      [2.39e-6, 5.82e-7, 4.54e-10], # Total conc. = 2.98e-6 uM
-    'caSensor':  [1.65e-6] + [0.0]*17,
-    'VDCC':      [80e-6, 0.0, 0.0, 0.0, 0.0],
-    'calbindin': [1.48e-05, 7.00e-06, 8.27e-07, 1.21e-05, 5.74e-06, 6.79e-07,
-                  2.49e-06, 1.18e-06, 1.39e-07] # Total conc. = 45e-6 uM
-}
-
 ### Command line arguments
 cmdArg = {
     'tcp'  : 50e-3,
@@ -21,6 +11,16 @@ cmdArg = {
     'rtol' : 1e-4,
     'atol' : 1e-10,
     'simName': 'trial/'
+}
+
+initVal = {
+    'Ca':        [100e-9],
+    'HH':        [-65.0, 0.05, 0.6, 0.32],
+    'PMCA':      [2.39e-6, 5.82e-7, 4.54e-10], # Total conc. = 2.98e-6 uM
+    'caSensor':  [1.65e-6] + [0.0]*17,
+    'VDCC':      [80e-6, 0.0, 0.0, 0.0, 0.0],
+    'calbindin': [1.48e-05, 7.00e-06, 8.27e-07, 1.21e-05, 5.74e-06, 6.79e-07,
+                  2.49e-06, 1.18e-06, 1.39e-07] # Total conc. = 45e-6 uM
 }
 
 #### Parameters
@@ -45,11 +45,6 @@ cbHon  = 0.55e7
 cbHoff = 2.6
 cbMon  = 4.35e7
 cbMoff = 35.8
-
-# VDCC
-a10, a20, a30, a40 = 4040, 6700, 4390, 17330 # /sec
-b10, b20, b30, b40 = 2880, 6300, 8160, 1840  # /sec
-V1,  V2,  V3,  V4  = 49.14, 42.08, 55.31, 26.55 # mV
 
 # Calcium Sensor
 sf = 0.612e8    # /M s
@@ -76,6 +71,11 @@ def beta_n(V):   return 0.125*exp(-(V+65) / 80.0)
 def I_Na(V, m, h):  return g_Na * m**3 * h * (V - E_Na)
 def I_K(V, n):      return g_K  * n**4 * (V - E_K)
 def I_L(V):         return g_L * (V - E_L)
+
+# VDCC
+a10, a20, a30, a40 = 4040, 6700, 4390, 17330 # /sec
+b10, b20, b30, b40 = 2880, 6300, 8160, 1840  # /sec
+V1,  V2,  V3,  V4  = 49.14, 42.08, 55.31, 26.55 # mV
 
 # VDCC gating variables
 def a1(V):    return a10*exp(V/V1)
