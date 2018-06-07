@@ -1,8 +1,7 @@
-from matplotlib.pyplot import *
-from scipy.integrate import *
-from numpy import *
-import os
 import operator as op
+import matplotlib.pyplot as plt
+from progress.bar import ChargingBar
+from collections import OrderedDict as od
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from parameters import *
@@ -12,7 +11,7 @@ from parameters import *
 ### corresponding location ad size array
 def compartments(modelInput):
     modelInput = [a.strip() for a in modelInput.strip().split("\n")]
-    cmpts = {}
+    cmpts = od()
     for a in modelInput:
         a = a.strip('[').strip(']').split(',')
         #print 'a:', a
@@ -155,7 +154,7 @@ def getVertices(c):
 
 ### Draw each compartment of the bouton for visual verification
 def plotCompartments(cmpts, bb):
-    fig = figure()
+    fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
 
     # set x,y,z limits
@@ -173,7 +172,7 @@ def plotCompartments(cmpts, bb):
         collection.set_facecolor('cyan')
         ax.add_collection3d(collection)
         #axis('equal')
-    show()
+    plt.show()
 
 
 ### Make a list of initial index of each compartment
@@ -193,119 +192,14 @@ def commandArg(argv):
         cmdArg.update({a[0]: float(a[1])})
 
 
-### The solution class
-class solution:
-    data = {}
+### A fancy progress bar
+class FancyBar(ChargingBar):
     t = 0
-
-    ### Putting all compartments together
-    def dXdt(self, t, X):
-        if t>=self.t:
-            print 't =', self.t
-            self.t += self.tcp/5
-
-        dX = []
-        j=0
-        for cm in self.cModels.values():
-            ## All compartments have V value of (0,0,0)th compartment
-            #cm.V = cModels[0].V
-            #print cm.name
-            ## Calcium Flux
-            caFlux = 0
-            for nbr, val in cm.nbrs.items():
-                area, d = val
-                caFlux += diffCa*area*(X[self.cIdx[nbr]] - X[j])/d
-                #if cm.name == '1-0-0':
-                    #print t, cm.name, area, d, diffCa, (X[self.cIdx[nbr]] - X[j]), caFlux
-
-            CaX = X[j:j+cm.nVar]
-            CaX[0] += caFlux
-
-            ## Collect dX values from each compartment
-            dX += cm.dXdt(CaX, t)
-
-            j += cm.nVar # increment counter to 1st element of next compartment
-
-        return dX
-
-    ### Solving the ODEs
-    def solve(self, cModels, cmdArg={}, simName = 'trial/', flux=1e4):
-        self.cModels = cModels
-        self.flux = flux
-
-        ## Make a list of initial index of each compartment
-        self.cIdx = initialIndex(self.cModels)
-
-        ## Simulation time
-        ti, tf = 0.0, cmdArg['tf']
-        tstep = cmdArg['tstep']
-        self.tcp = cmdArg['tcp']
-
-        ## initial values
-        X0 = []
-        for cm in self.cModels.values():
-            X0 += cm.X0
-        print 'Total number of equations:', len(X0)
-
-        ## Solve ODE
-        timei = time.time()
-        print "solving the ODE..."
-
-        tinterval = []
-        aa = arange(ti, tf, self.tcp)
-        for i in range(len(aa[:-1])):
-            tinterval += [[aa[i], aa[i+1]]]
-        tinterval += [[aa[-1], tf]]
-
-        ## Saving data till current checkpoint in files
-        if cmdArg['save']:
-            dir = 'data/'+cmdArg['simName']
-            if not os.path.exists(dir):
-                os.makedirs(dir)
-            fname = dir+cm.name+'.txt'
-            file = open(fname, 'w')
-
-        temp = 1
-        for ti, tf in tinterval:
-            t_eval = linspace(ti, tf, round((tf - ti)/tstep) + 1)[:-1]
-
-            sol = solve_ivp(self.dXdt, [ti, tf], X0, t_eval=t_eval,
-                            rtol=cmdArg['rtol'], atol=cmdArg['atol'])
-
-            ## Last values of sol as X0
-            X0 = sol.y.T[-1]
-
-            ## Saving data till current checkpoint in files
-            if cmdArg['save']:
-                tsavei = time.time()
-                for cm in self.cModels:
-                    header = 't\t\t'
-                    vname = sorted(self.data[cm.name].iteritems(), key=lambda (k,v): (v,k))
-                    for vn in vname:
-                        header += vn[0] + '\t\t'
-
-                    v = concatenate(([sol.t], sol.y[self.cIdx[cm.name]:self.cIdx[cm.name]+cm.nVar])).T
-                    if temp:
-                        savetxt(file, v, header=header, fmt='%.4e', delimiter='\t')
-                    else:
-                        savetxt(file, v, fmt='%.4e', delimiter='\t')
-
-                tsavef = time.time()
-                print 'Time taken for saving:', tsavef - tsavei
-
-            ## Adding sol to solution till previous checkpoint
-            if temp:
-                t = sol.t
-                y = sol.y
-                temp = 0
-            else:
-                t = concatenate((t, sol.t))
-                y = concatenate((y, sol.y), axis=1)
-
-        if cmdArg['save']:
-            file.close()
-        ## Organise data in result.data dictionary
-        for cname, idx in self.cIdx.items():
-            for vname, v in self.data[cname].items():
-                self.data[cname][vname] = y[idx+v]
+    suffix = '%(done).2f sec'
+    def nextt(self, t):
         self.t = t
+        self.next()
+
+    @property
+    def done(self):
+        return self.t

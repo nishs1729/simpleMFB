@@ -1,73 +1,69 @@
-from scipy.integrate import odeint
-from scipy import arange
-import matplotlib.ticker as mtick
-from pylab import *
 from parameters import *
-from MFBfunctions import solution
+from solution import *
 
-result = solution()
-
+#print cmpts
 class mfb:
-    def __init__(self, models, name, dim, nbrs={}):
+    def __init__(self, models, name, dim):
         self.name = name
         self.dim  = dim
-        self.nbrs = nbrs
+        self.nbrs = {}#getNeighbours(self.name, self.dim, cmpts)
         self.vol  = reduce(lambda x, y: x*y, dim[3:])
         #print nbrs, dim, self.vol
 
         # Indexing of the compartment variables
         i = 0
-        idx = {}
+        self.idx = od()
         self.X0 = []
         self.models = models
         if 'Ca' in models:
             if models['Ca'] == []: self.X0 += initVal['Ca']
             else: self.X0 += models['Ca']
-            idx.update({'Ca': i})
+            self.idx.update(od([('Ca', i)]))
             i += len(initVal['Ca'])
 
         if 'HH' in models:
             if models['HH'] == []: self.X0 += initVal['HH']
             else: self.X0 += models['HH']
-            idx.update({'V': i, 'm': i+1, 'h': i+2, 'n': i+3})
+            self.idx.update(od(zip(['V', 'm', 'h', 'n'], range(i,i+4))))
             i += len(initVal['HH'])
             self.V = 0
 
         if 'PMCA' in models:
             if models['PMCA'] == []: self.X0 += initVal['PMCA']
             else: self.X0 += models['PMCA']
-            idx.update({'PMCA0': i, 'PMCA1': i+1, 'PMCA2': i+2})
+            self.idx.update(od(zip(['PMCA0', 'PMCA1', 'PMCA2'], range(i,i+3))))
             i += len(initVal['PMCA'])
 
         if 'VDCC' in models:
             if models['VDCC'] == []: self.X0 += initVal['VDCC']
             else: self.X0 += models['VDCC']
-            idx.update({'VDCC_C0': i,   'VDCC_C1': i+1, 'VDCC_C2': i+2,
-                        'VDCC_C3': i+3, 'VDCC_O' : i+4 })
+            self.idx.update(od(zip(['VDCC_C0', 'VDCC_C1', 'VDCC_C2', 'VDCC_C3', 'VDCC_O'],
+                                    range(i,i+5))))
             i += len(initVal['VDCC'])
             self.V = 0
 
         if 'calbindin' in models:
             if models['calbindin'] == []: self.X0 += initVal['calbindin']
             else: self.X0 += models['calbindin']
-            idx.update({'cbH0M0': i,   'cbH0M1': i+1, 'cbH0M2': i+2,
-                        'cbH1M0': i+3, 'cbH1M1': i+4, 'cbH1M2': i+5,
-                        'cbH2M0': i+6, 'cbH2M1': i+7, 'cbH2M2': i+8})
+            self.idx.update(
+                        od([('cbH0M0', i)  , ('cbH0M1', i+1), ('cbH0M2', i+2),
+                            ('cbH1M0', i+3), ('cbH1M1', i+4), ('cbH1M2', i+5),
+                            ('cbH2M0', i+6), ('cbH2M1', i+7), ('cbH2M2', i+8)]))
             i += len(initVal['calbindin'])
 
         if 'caSensor' in models:
             if models['caSensor'] == []: self.X0 += initVal['caSensor']
             else: self.X0 += models['caSensor']
-            idx.update({'CaS00': i+0,  'CaS10': i+1,  'CaS20': i+2,
-                        'CaS30': i+3,  'CaS40': i+4,  'CaS50': i+5,
-                        'CaS01': i+6,  'CaS11': i+7,  'CaS21': i+8,
-                        'CaS31': i+9,  'CaS41': i+10, 'CaS51': i+11,
-                        'CaS02': i+12, 'CaS12': i+13, 'CaS22': i+14,
-                        'CaS32': i+15, 'CaS42': i+16, 'CaS52': i+17})
+            self.idx.update(
+                    od([('CaS00', i+0 ), ('CaS10', i+1 ), ('CaS20', i+2 ),
+                        ('CaS30', i+3 ), ('CaS40', i+4 ), ('CaS50', i+5 ),
+                        ('CaS01', i+6 ), ('CaS11', i+7 ), ('CaS21', i+8 ),
+                        ('CaS31', i+9 ), ('CaS41', i+10), ('CaS51', i+11),
+                        ('CaS02', i+12), ('CaS12', i+13), ('CaS22', i+14),
+                        ('CaS32', i+15), ('CaS42', i+16), ('CaS52', i+17)]))
             i += len(initVal['caSensor'])
 
         self.nVar = i
-        result.data.update({self.name: idx})
         #rint 'X0:', self.X0, '\n', idx, '\n', self.nVar, '\n\n'
 
 
@@ -233,27 +229,3 @@ class mfb:
             self.dX[0] += dCa
 
         return  self.dX
-
-
-if __name__ == '__main__':
-    t = arange(0.0, 50e-3, 1e-5)
-
-    models = {
-        'Ca': [1e-6],
-        'HH': [],
-        'PMCA': [3e-6, 0.0, 0.0],
-        'caSensor': [],
-        'VDCC': [],
-        'calbindin': []
-    }
-    m = mfb(models)
-
-    sol = odeint(m.dXdt, m.X0, t)
-
-    fig, ax = subplots()
-    for v,i in [(v,i) for v,i in m.index.items() if 'V' not in v]:
-        figY = plot(t*1000, sol[:,i], lw=2, label=v)
-
-    xlabel('Time (ms)')
-    legend(frameon=False)
-    #show()

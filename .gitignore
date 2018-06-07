@@ -19,3 +19,5 @@ data
 
 # others
 .ipynb_*
+text.py
+test.py

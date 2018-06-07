@@ -1,13 +1,12 @@
 #!/usr/bin/env python
-from scipy import arange
-from numpy import *
-import time
-from matplotlib.pyplot import *
+import sys, time
+
 from modelEquations import *
 from MFBfunctions import *
 from parameters import *
-from collections import OrderedDict as OD
+from solution import *
 
+timei = time.time()
 ### Command line arguments
 commandArg(sys.argv)
 
@@ -26,7 +25,7 @@ modelInput = '''[0:2:2, 0:20:4, 0:2:3]
                 [2:38, 0:20, 0:2]
                 '''
 
-#modelInput = "[0:1,0:1,0:1]"
+modelInput = "[0:1,0:1,0:1]"
 modelInput = "[0:2,0:2,0:2]"
 
 ### MFB bounding box
@@ -37,7 +36,7 @@ boundingBox = "[0:" + str(bb[0]) + ",0:" + str(bb[1]) + ",0:" + str(bb[2]) + "]"
 ### Get all the compartments as
 ### {'i-j-k': [i,j,k,lenth,width,height]}
 cmpts = compartments(modelInput)
-#for k in sorted(cmpts.iterkeys()): print "%s: %s" % (k, cmpts[k])
+#for k, v in cmpts.items(): print k, v
 
 ### Check if no compartment have overlapping volumes and
 ### there are no gaps in the model
@@ -50,31 +49,40 @@ if checkGeometry(boundingBox, cmpts):
 else:
     exit()
 
-### List of model objects for each compartment
-cModels = OD()
-for cname, cdim in [[k, cmpts[k]] for k in sorted(cmpts.iterkeys())]: # sorted by name
-    cModels.update({cname: mfb({'Ca':[1e-7], 'PMCA': [], 'calbindin': [], 'caSensor': []},
-                   name = cname,
-                   dim = cdim,
-                   nbrs = getNeighbours(cname, cdim, cmpts))}
-                   )
+### Create a solution object
+#result = solution()
 
+### List of model objects for each compartment
+cModels = od()
+for cname, cdim in cmpts.items():
+    cModels.update({cname: mfb({'Ca':[1e-7], 'PMCA': []},
+                               name = cname,
+                               dim = cdim)
+                  })
+
+'''
 c0 = '0-0-0'
 cModels.update({c0: mfb({'Ca':[100e-7], 'PMCA': [], 'calbindin': []},
-               name = c0,
-               dim = cmpts[c0],
-               nbrs = getNeighbours(c0, cmpts[c0], cmpts))}
+                name = c0,
+                dim = cmpts[c0],
+                nbrs = getNeighbours(c0, cmpts[c0], cmpts))}
               )
+'''
+result = solution(cModels, cmdArg, simName='trial/')
+result.solve()
 
-result.solve(cModels, cmdArg=cmdArg, simName = 'trial/', flux=1e4)
+
+
+timef = time.time()
+print '\n\tTotal time:', timef-timei
 
 ### Plot some results
 if cmdArg['fig']:
-    fig, ax = subplots()
+    fig, ax = plt.subplots()
     for cname, c in result.data.items():
-        for vname, v in result.data[cname].items():
+        for vname, v in result.data[cname].items()[:5]:
             #if 'Ca' in vname: print vname, v[-1]
             #if vname == 'Ca':
-            plot(result.t*1e3, v, lw=1, label=vname)
-    legend()
-    show()#'''
+            plt.plot(result.t*1e3, v, lw=1, label=vname)
+    plt.legend()
+    plt.show()
