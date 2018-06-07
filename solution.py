@@ -1,11 +1,5 @@
-import os
-from scipy import arange, linspace
-from scipy.integrate import *
-from progress.bar import ChargingBar
-from collections import OrderedDict as od
-
 from MFBfunctions import *
-
+from parameters import *
 
 ### The solution class
 class solution:
@@ -13,13 +7,14 @@ class solution:
     t = 0
     #bar = ChargingBar('Solving', max=)
 
-    def __init__(self, cModels, cmdArg, simName='trial/'):
+    def __init__(self, cModels, cmpts, cmdArg, simName='trial/'):
         self.cModels = cModels
         self.cmdArg = cmdArg
         self.simName = simName
 
         for cname, cm in cModels.items():
             self.data.update({cname: cm.idx})
+            cm.nbrs = getNeighbours(cm.name, cm.dim, cmpts)
 
     ### Putting all compartments together
     def dXdt(self, t, X):
@@ -32,7 +27,7 @@ class solution:
         for cm in self.cModels.values():
             ## All compartments have V value of (0,0,0)th compartment
             #cm.V = cModels[0].V
-            #print cm.name
+
             ## Calcium Flux
             caFlux = 0
             for nbr, val in cm.nbrs.items():
@@ -116,8 +111,8 @@ class solution:
                 y = sol.y
                 temp = 0
             else:
-                t = concatenate((t, sol.t))
-                y = concatenate((y, sol.y), axis=1)
+                t = np.concatenate((t, sol.t))
+                y = np.concatenate((y, sol.y), axis=1)
 
         if cmdArg['save']:
             file.close()

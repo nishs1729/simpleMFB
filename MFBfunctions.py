@@ -1,9 +1,3 @@
-import operator as op
-import matplotlib.pyplot as plt
-from progress.bar import ChargingBar
-from collections import OrderedDict as od
-from mpl_toolkits.mplot3d import Axes3D
-from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from parameters import *
 
 ### Takes in location and size of each compartment
@@ -76,6 +70,7 @@ def checkGeometry(boundingBox, cmpts):
 ### Check if two compartments a amd b are neighbours
 ### Returns False if they are not neighbours
 ### Returns shared surface area if they are neighbours
+#@jit
 def isNeighbour(a,b):
     nbr = (a[0] <= b[0]+b[3] and a[0]+a[3] >= b[0]) and \
           (a[1] <= b[1]+b[4] and a[1]+a[4] >= b[1]) and \
@@ -85,7 +80,8 @@ def isNeighbour(a,b):
         ## distance between the compartments, d
         mida = a[:3] + a[3:]/2.0
         midb = b[:3] + b[3:]/2.0
-        d = sqrt(reduce(op.add, map(lambda x, y: (x-y)**2, mida, midb)))
+        #d = np.sqrt(np.sum((mida-midb)**2))
+        d = np.sqrt(reduce(op.add, map(lambda x, y: (x-y)**2, mida, midb)))
 
         ## If a and b have an overlapping surface, return area and d
         if a[0] == b[0]+b[3] or a[0]+a[3] == b[0]:
@@ -124,13 +120,14 @@ def getNeighbours(cname, cdim, cmpts):
     nbrs = {}
     for nk,nv in cmpts.items():
         if not cname==nk:
-            area = isNeighbour(array(cdim), array(nv))
+            area = isNeighbour(np.array(cdim), np.array(nv))
             if area:
                 nbrs.update({nk: area})
     return nbrs
 
 
 ### Get all vertices of a compartment
+#@jit
 def getVertices(c):
     v = [c[:3]]
     v.append([c[0]+c[3], c[1],      c[2]])
@@ -150,7 +147,7 @@ def getVertices(c):
              [v[4], v[7], v[3], v[0]],
              [v[2], v[3], v[7], v[6]]]
 
-    return array(verts)
+    return np.array(verts)
 
 ### Draw each compartment of the bouton for visual verification
 def plotCompartments(cmpts, bb):

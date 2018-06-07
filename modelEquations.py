@@ -6,7 +6,6 @@ class mfb:
     def __init__(self, models, name, dim):
         self.name = name
         self.dim  = dim
-        self.nbrs = {}#getNeighbours(self.name, self.dim, cmpts)
         self.vol  = reduce(lambda x, y: x*y, dim[3:])
         #print nbrs, dim, self.vol
 

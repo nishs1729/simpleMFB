@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-import sys, time
-
 from modelEquations import *
 from MFBfunctions import *
 from parameters import *
@@ -25,12 +23,12 @@ modelInput = '''[0:2:2, 0:20:4, 0:2:3]
                 [2:38, 0:20, 0:2]
                 '''
 
-modelInput = "[0:1,0:1,0:1]"
-modelInput = "[0:2,0:2,0:2]"
+#modelInput = "[0:1,0:1,0:1]"
+#modelInput = "[0:2,0:2,0:2]"
 
 ### MFB bounding box
-#bb = [40, 20, 10]
-bb = [2]*3 #+ [1]*2
+bb = [40, 20, 10]
+#bb = [2]*3 #+ [1]*2
 boundingBox = "[0:" + str(bb[0]) + ",0:" + str(bb[1]) + ",0:" + str(bb[2]) + "]"
 
 ### Get all the compartments as
@@ -49,13 +47,10 @@ if checkGeometry(boundingBox, cmpts):
 else:
     exit()
 
-### Create a solution object
-#result = solution()
-
 ### List of model objects for each compartment
 cModels = od()
 for cname, cdim in cmpts.items():
-    cModels.update({cname: mfb({'Ca':[1e-7], 'PMCA': []},
+    cModels.update({cname: mfb({'Ca':[1e-7], 'PMCA': [], 'HH': []},
                                name = cname,
                                dim = cdim)
                   })
@@ -68,8 +63,12 @@ cModels.update({c0: mfb({'Ca':[100e-7], 'PMCA': [], 'calbindin': []},
                 nbrs = getNeighbours(c0, cmpts[c0], cmpts))}
               )
 '''
-result = solution(cModels, cmdArg, simName='trial/')
-result.solve()
+
+### Create a solution object
+result = solution(cModels, cmpts, cmdArg, simName='trial/')
+
+### Solve the equations
+#result.solve()
 
 
 

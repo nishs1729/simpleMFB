@@ -1,5 +1,16 @@
-import numpy as np
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+from collections import OrderedDict as od
+from mpl_toolkits.mplot3d import Axes3D
+from progress.bar import ChargingBar
+from scipy import arange, linspace
+import matplotlib.pyplot as plt
+from scipy.integrate import *
+import operator as op
 from numba import *
+import numpy as np
+import sys, time
+import os
+
 
 ### Command line arguments
 cmdArg = {
@@ -66,22 +77,22 @@ def I_inj(t):  return 10#*(t>0.005) - 10*(t>0.015) + 35*(t>0.3) - 35*(t>0.4)
 
 # Channel gating variables (ms)
 @jit
-def alpha_m(V):  return 0.1*(V+40.0)/(1.0 - exp(-(V+40.0) / 10.0))
+def alpha_m(V):  return 0.1*(V+40.0)/(1.0 - np.exp(-(V+40.0) / 10.0))
 
 @jit
-def beta_m(V):   return 4.0*exp(-(V+65.0) / 18.0)
+def beta_m(V):   return 4.0*np.exp(-(V+65.0) / 18.0)
 
 @jit
-def alpha_h(V):  return 0.07*exp(-(V+65.0) / 20.0)
+def alpha_h(V):  return 0.07*np.exp(-(V+65.0) / 20.0)
 
 @jit
-def beta_h(V):   return 1.0/(1.0 + exp(-(V+35.0) / 10.0))
+def beta_h(V):   return 1.0/(1.0 + np.exp(-(V+35.0) / 10.0))
 
 @jit
-def alpha_n(V):  return 0.01*(V+55.0)/(1.0 - exp(-(V+55.0) / 10.0))
+def alpha_n(V):  return 0.01*(V+55.0)/(1.0 - np.exp(-(V+55.0) / 10.0))
 
 @jit
-def beta_n(V):   return 0.125*exp(-(V+65) / 80.0)
+def beta_n(V):   return 0.125*np.exp(-(V+65) / 80.0)
 
 ### Membrane current (in uA/cm^2)
 @jit
@@ -100,28 +111,28 @@ V1,  V2,  V3,  V4  = 49.14, 42.08, 55.31, 26.55 # mV
 
 ### VDCC gating variables
 @jit
-def a1(V):    return a10*exp(V/V1)
+def a1(V):    return a10*np.exp(V/V1)
 
 @jit
-def b1(V):    return b10*exp(-V/V1)
+def b1(V):    return b10*np.exp(-V/V1)
 
 @jit
-def a2(V):    return a20*exp(V/V2)
+def a2(V):    return a20*np.exp(V/V2)
 
 @jit
-def b2(V):    return b20*exp(-V/V2)
+def b2(V):    return b20*np.exp(-V/V2)
 
 @jit
-def a3(V):    return a30*exp(V/V3)
+def a3(V):    return a30*np.exp(V/V3)
 
 @jit
-def b3(V):    return b30*exp(-V/V3)
+def b3(V):    return b30*np.exp(-V/V3)
 
 @jit
-def a4(V):    return a40*exp(V/V4)
+def a4(V):    return a40*np.exp(V/V4)
 
 @jit
-def b4(V):    return b40*exp(-V/V4)
+def b4(V):    return b40*np.exp(-V/V4)
 
 ### All available model components
 models = {
