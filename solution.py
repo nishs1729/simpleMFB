@@ -5,7 +5,6 @@ from parameters import *
 class solution:
     data = od()
     t = 0
-    #bar = ChargingBar('Solving', max=)
 
     def __init__(self, cModels, cmpts, cmdArg, simName='trial/'):
         self.cModels = cModels
@@ -19,7 +18,8 @@ class solution:
     ### Putting all compartments together
     def dXdt(self, t, X):
         if t>=self.t:
-            print 't =', self.t, 's'
+            #print 't =', self.t, 's'
+            self.bar.nextstep(self.t)
             self.t += self.tcp/5
 
         dX = []
@@ -63,7 +63,8 @@ class solution:
         print 'Total number of equations:', len(X0)
 
         ## Solve ODE
-        print "solving the ODE..."
+        print "solving the ODE...", tf/self.tcp*5
+        self.bar = FancyBar('Solving', max=int(tf/self.tcp*5))
 
         tinterval = []
         aa = arange(ti, tf, self.tcp)
@@ -113,6 +114,8 @@ class solution:
             else:
                 t = np.concatenate((t, sol.t))
                 y = np.concatenate((y, sol.y), axis=1)
+
+        self.bar.finish()
 
         if cmdArg['save']:
             file.close()

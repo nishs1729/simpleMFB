@@ -24,11 +24,11 @@ modelInput = '''[0:2:2, 0:20:4, 0:2:3]
                 '''
 
 #modelInput = "[0:1,0:1,0:1]"
-#modelInput = "[0:2,0:2,0:2]"
+modelInput = "[0:2,0:2,0:2]"
 
 ### MFB bounding box
-bb = [40, 20, 10]
-#bb = [2]*3 #+ [1]*2
+#bb = [40, 20, 10]
+bb = [2]*3 #+ [1]*2
 boundingBox = "[0:" + str(bb[0]) + ",0:" + str(bb[1]) + ",0:" + str(bb[2]) + "]"
 
 ### Get all the compartments as
@@ -68,7 +68,7 @@ cModels.update({c0: mfb({'Ca':[100e-7], 'PMCA': [], 'calbindin': []},
 result = solution(cModels, cmpts, cmdArg, simName='trial/')
 
 ### Solve the equations
-#result.solve()
+result.solve()
 
 
 

@@ -193,7 +193,7 @@ def commandArg(argv):
 class FancyBar(ChargingBar):
     t = 0
     suffix = '%(done).2f sec'
-    def nextt(self, t):
+    def nextstep(self, t):
         self.t = t
         self.next()
 
