@@ -1,29 +1,4 @@
-from mpl_toolkits.mplot3d.art3d import Poly3DCollection
-from collections import OrderedDict as od
-from mpl_toolkits.mplot3d import Axes3D
-from progress.bar import ChargingBar
-from scipy import arange, linspace
-import matplotlib.pyplot as plt
-from scipy.integrate import *
-import operator as op
-from numba import *
-import numpy as np
-import sys, time
-import os
-
-
-### Command line arguments
-cmdArg = {
-    'tcp'  : 50e-3,
-    'geo'  : 0,
-    'save' : 0,
-    'tf'   : 100e-3,
-    'tstep': 1e-4,
-    'fig'  : 0,
-    'rtol' : 1e-6,
-    'atol' : 1e-10,
-    'simName': 'trial/'
-}
+from numpy import *
 
 initVal = {
     'Ca':        [100e-9],
@@ -35,10 +10,20 @@ initVal = {
                   2.49e-06, 1.18e-06, 1.39e-07] # Total conc. = 45e-6 uM
 }
 
-#### Parameters
-# Calcium diffusion constant
-diffCa = 220 # um^2/s
+### Command line arguments
+cmdArg = {
+    'tcp'  : 50e-3,
+    'geo'  : 0,
+    'save' : 0,
+    'tf'   : 100e-3,
+    'tstep': 1e-3,
+    'fig'  : 0,
+    'rtol' : 1e-4,
+    'atol' : 1e-10,
+    'simName': 'trial/'
+}
 
+#### Parameters
 # HH
 C_m  = 1.0
 g_Na = 120.0
@@ -61,6 +46,11 @@ cbHoff = 2.6
 cbMon  = 4.35e7
 cbMoff = 35.8
 
+# VDCC
+a10, a20, a30, a40 = 4040, 6700, 4390, 17330 # /sec
+b10, b20, b30, b40 = 2880, 6300, 8160, 1840  # /sec
+V1,  V2,  V3,  V4  = 49.14, 42.08, 55.31, 26.55 # mV
+
 # Calcium Sensor
 sf = 0.612e8    # /M s
 sb = 2.32e3     # /s
@@ -72,67 +62,33 @@ ras = 0
 rsp = 0
 
 # External Current
-@jit
 def I_inj(t):  return 10#*(t>0.005) - 10*(t>0.015) + 35*(t>0.3) - 35*(t>0.4)
 
 # Channel gating variables (ms)
-@jit
-def alpha_m(V):  return 0.1*(V+40.0)/(1.0 - np.exp(-(V+40.0) / 10.0))
+def alpha_m(V):  return 0.1*(V+40.0)/(1.0 - exp(-(V+40.0) / 10.0))
+def beta_m(V):   return 4.0*exp(-(V+65.0) / 18.0)
+def alpha_h(V):  return 0.07*exp(-(V+65.0) / 20.0)
+def beta_h(V):   return 1.0/(1.0 + exp(-(V+35.0) / 10.0))
+def alpha_n(V):  return 0.01*(V+55.0)/(1.0 - exp(-(V+55.0) / 10.0))
+def beta_n(V):   return 0.125*exp(-(V+65) / 80.0)
 
-@jit
-def beta_m(V):   return 4.0*np.exp(-(V+65.0) / 18.0)
-
-@jit
-def alpha_h(V):  return 0.07*np.exp(-(V+65.0) / 20.0)
-
-@jit
-def beta_h(V):   return 1.0/(1.0 + np.exp(-(V+35.0) / 10.0))
-
-@jit
-def alpha_n(V):  return 0.01*(V+55.0)/(1.0 - np.exp(-(V+55.0) / 10.0))
-
-@jit
-def beta_n(V):   return 0.125*np.exp(-(V+65) / 80.0)
-
-### Membrane current (in uA/cm^2)
-@jit
+# Membrane current (in uA/cm^2)
 def I_Na(V, m, h):  return g_Na * m**3 * h * (V - E_Na)
-
-@jit
 def I_K(V, n):      return g_K  * n**4 * (V - E_K)
-
-@jit
 def I_L(V):         return g_L * (V - E_L)
 
-### VDCC
-a10, a20, a30, a40 = 4040, 6700, 4390, 17330 # /sec
-b10, b20, b30, b40 = 2880, 6300, 8160, 1840  # /sec
-V1,  V2,  V3,  V4  = 49.14, 42.08, 55.31, 26.55 # mV
+# VDCC gating variables
+def a1(V):    return a10*exp(V/V1)
+def b1(V):    return b10*exp(-V/V1)
 
-### VDCC gating variables
-@jit
-def a1(V):    return a10*np.exp(V/V1)
+def a2(V):    return a20*exp(V/V2)
+def b2(V):    return b20*exp(-V/V2)
 
-@jit
-def b1(V):    return b10*np.exp(-V/V1)
+def a3(V):    return a30*exp(V/V3)
+def b3(V):    return b30*exp(-V/V3)
 
-@jit
-def a2(V):    return a20*np.exp(V/V2)
-
-@jit
-def b2(V):    return b20*np.exp(-V/V2)
-
-@jit
-def a3(V):    return a30*np.exp(V/V3)
-
-@jit
-def b3(V):    return b30*np.exp(-V/V3)
-
-@jit
-def a4(V):    return a40*np.exp(V/V4)
-
-@jit
-def b4(V):    return b40*np.exp(-V/V4)
+def a4(V):    return a40*exp(V/V4)
+def b4(V):    return b40*exp(-V/V4)
 
 ### All available model components
 models = {
@@ -141,6 +97,37 @@ models = {
     'PMCA': [],
     'VDCC': [],
     'caSensor': [],
+    'calbindin': []
+}
+
+### compartment with PMCA and VDCC models
+mVDCC = {
+    'Ca': [],
+    'PMCA': [],
+    'VDCC': [],
+    'calbindin': []
+}
+
+### compartment with PMCA model
+mPMCA = {
+    'Ca': [],
+    'PMCA': [],
+    'calbindin': []
+}
+
+### compartment with PMCA and caSensor models
+mPMCASensor = {
+    'Ca': [],
+    'PMCA': [],
+    'caSensor': [],
+    'calbindin': []
+}
+
+### compartment with HH model (0-0-0)
+mHH = {
+    'Ca': [],
+    'HH': [],
+    'PMCA': [],
     'calbindin': []
 }
 
