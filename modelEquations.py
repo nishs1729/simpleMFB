@@ -1,5 +1,4 @@
 from parameters import *
-from solution import *
 
 #print cmpts
 class mfb:
@@ -128,7 +127,7 @@ class mfb:
 
         ### VDCC
         if 'VDCC' in self.models:
-            dCa += 19.3*self.V*(0.3993 - exp(-self.V/80.36))/(1 - exp(self.V/80.36))*VDCC_O
+            dCa += 19.3*self.V*(0.3993 - np.exp(-self.V/80.36))/(1 - np.exp(self.V/80.36))*VDCC_O
             dVDCC_C0 = + b1(self.V)*VDCC_C1 - a1(self.V)*VDCC_C0
             dVDCC_C1 = + a1(self.V)*VDCC_C0 + b2(self.V)*VDCC_C2 \
                        - (b1(self.V) + a2(self.V))*VDCC_C1

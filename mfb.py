@@ -1,8 +1,6 @@
 #!/usr/bin/env python
-from modelEquations import *
 from MFBfunctions import *
 from parameters import *
-from solution import *
 
 timei = time.time()
 ### Command line arguments
@@ -25,10 +23,11 @@ modelInput = '''[0:2:2, 0:20:4, 0:2:3]
 
 #modelInput = "[0:1,0:1,0:1]"
 modelInput = "[0:2,0:2,0:2]"
+modelInput = "[0:5,0:5,0:5]"
 
 ### MFB bounding box
-#bb = [40, 20, 10]
-bb = [2]*3 #+ [1]*2
+bb = [40, 20, 10]
+bb = [5]*3 #+ [1]*2
 boundingBox = "[0:" + str(bb[0]) + ",0:" + str(bb[1]) + ",0:" + str(bb[2]) + "]"
 
 ### Get all the compartments as
@@ -41,26 +40,35 @@ cmpts = compartments(modelInput)
 print "checking geometry..."
 if checkGeometry(boundingBox, cmpts):
     print 'Go ahead! All good with the geometry'
-    print 'Number of compartments:', len(cmpts)
+    print 'Number of compartments:', Fore.GREEN, len(cmpts), Style.RESET_ALL
     if cmdArg['geo']:
         plotCompartments(cmpts, bb)
 else:
     exit()
 
+### Compartment list for specific model type
+cHH = ['0-0-0']
+cVDCC = ['1-0-0', '1-1-0', '1-0-1', '1-1-1', '0-0-1', '0-1-0', '0-1-1']
+cPMCA = []
+cPMCASensor = []
+
 ### List of model objects for each compartment
+cModels = getModels(cmpts, cHH, cVDCC, cPMCA, cPMCASensor)
+#print cModels
+
+'''
 cModels = od()
 for cname, cdim in cmpts.items():
     cModels.update({cname: mfb({'Ca':[1e-7], 'PMCA': [], 'HH': []},
                                name = cname,
                                dim = cdim)
                   })
-
+'''
 '''
 c0 = '0-0-0'
-cModels.update({c0: mfb({'Ca':[100e-7], 'PMCA': [], 'calbindin': []},
+cModels.update({c0: mfb(nHH,
                 name = c0,
-                dim = cmpts[c0],
-                nbrs = getNeighbours(c0, cmpts[c0], cmpts))}
+                dim = cmpts[c0])}
               )
 '''
 
@@ -68,12 +76,14 @@ cModels.update({c0: mfb({'Ca':[100e-7], 'PMCA': [], 'calbindin': []},
 result = solution(cModels, cmpts, cmdArg, simName='trial/')
 
 ### Solve the equations
-result.solve()
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    result.solve()
 
 
 
 timef = time.time()
-print '\n\tTotal time:', timef-timei
+print '\n\tTotal time:', Fore.RED, timef-timei, Style.RESET_ALL
 
 ### Plot some results
 if cmdArg['fig']:
@@ -85,3 +95,4 @@ if cmdArg['fig']:
             plt.plot(result.t*1e3, v, lw=1, label=vname)
     plt.legend()
     plt.show()
+#"""
