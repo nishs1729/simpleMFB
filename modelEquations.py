@@ -1,6 +1,5 @@
 from parameters import *
 
-#print cmpts
 class mfb:
     def __init__(self, models, name, dim):
         self.name = name

@@ -5,7 +5,7 @@ from modelEquations import *
 ### and returns a dictionary of compartment name and
 ### corresponding location ad size array
 def compartments(modelInput):
-    modelInput = [a.strip() for a in modelInput.strip().split("\n")]
+    modelInput = np.array([a.strip() for a in modelInput.strip().split("\n")])
     cmpts = od()
     for a in modelInput:
         a = a.strip('[').strip(']').split(',')
@@ -14,7 +14,7 @@ def compartments(modelInput):
         arr, temp = [], []
         for i in a[:3]:
             if ':' in i:
-                t = [int(a) for a in i.split(':')]
+                t = np.array([int(a) for a in i.split(':')])
                 try:
                     arr.append(range(t[0],t[1],t[2]))
                     temp.append(t[2])
@@ -62,9 +62,9 @@ def checkGeometry(boundingBox, cmpts):
     if gap==[] and overlap==[]:
         return True
     else:
-        print 'Error in compartment geometry!'
+        print Fore.RED + 'Error in compartment geometry!'
         print 'gaps:', gap, len(gap)
-        print 'overlaps:', overlap
+        print 'overlaps:', overlap, Fore.RESET
         return False
 
 
@@ -279,7 +279,7 @@ class solution:
         X0 = []
         for cm in self.cModels.values():
             X0 += cm.X0
-        print 'Total number of equations:', Fore.GREEN, len(X0), Style.RESET_ALL, '\n'
+        print 'Total equations:' + Fore.GREEN, len(X0), Style.RESET_ALL, '\n'
 
         ## Solve ODE
         self.bar = FancyBar('Solving' + Fore.RED, max=101)
@@ -315,7 +315,6 @@ class solution:
 
                     for vn in self.data[cname]:
                         header += vn + '\t\t'
-                        print vn
 
                     v = concatenate(([sol.t], sol.y[self.cIdx[cname]:self.cIdx[cname]+cm.nVar])).T
                     if temp:

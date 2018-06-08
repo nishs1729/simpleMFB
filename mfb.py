@@ -21,13 +21,13 @@ modelInput = '''[0:2:2, 0:20:4, 0:2:3]
                 [2:38, 0:20, 0:2]
                 '''
 
-#modelInput = "[0:1,0:1,0:1]"
-modelInput = "[0:2,0:2,0:2]"
-modelInput = "[0:5,0:5,0:5]"
+modelInput = "[0:1,0:1,0:1]"
+#modelInput = "[0:2,0:2,0:2]"
+#modelInput = "[0:5,0:5,0:5]"
 
 ### MFB bounding box
 bb = [40, 20, 10]
-bb = [5]*3 #+ [1]*2
+bb = [1]*3 #+ [1]*2
 boundingBox = "[0:" + str(bb[0]) + ",0:" + str(bb[1]) + ",0:" + str(bb[2]) + "]"
 
 ### Get all the compartments as
@@ -37,10 +37,10 @@ cmpts = compartments(modelInput)
 
 ### Check if no compartment have overlapping volumes and
 ### there are no gaps in the model
-print "checking geometry..."
+print "Compartment geometry:"
 if checkGeometry(boundingBox, cmpts):
-    print 'Go ahead! All good with the geometry'
-    print 'Number of compartments:', Fore.GREEN, len(cmpts), Style.RESET_ALL
+    print Fore.GREEN + 'Go ahead! All good with the geometry\n' + Fore.RESET
+    print 'Compartments:\t', Fore.GREEN, len(cmpts), Style.RESET_ALL
     if cmdArg['geo']:
         plotCompartments(cmpts, bb)
 else:
@@ -55,22 +55,6 @@ cPMCASensor = []
 ### List of model objects for each compartment
 cModels = getModels(cmpts, cHH, cVDCC, cPMCA, cPMCASensor)
 #print cModels
-
-'''
-cModels = od()
-for cname, cdim in cmpts.items():
-    cModels.update({cname: mfb({'Ca':[1e-7], 'PMCA': [], 'HH': []},
-                               name = cname,
-                               dim = cdim)
-                  })
-'''
-'''
-c0 = '0-0-0'
-cModels.update({c0: mfb(nHH,
-                name = c0,
-                dim = cmpts[c0])}
-              )
-'''
 
 ### Create a solution object
 result = solution(cModels, cmpts, cmdArg, simName='trial/')
