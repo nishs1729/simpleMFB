@@ -1,22 +1,6 @@
 from parameters import *
-from modelEquations import equations
 from MFBFunctions import *
 from misc import FancyBar, getV
-
-### get cModels containing the model equations
-def getModels(cmpts, cm):
-    cModels = od()
-    for cname, cdim in cmpts.items():
-        if cname in cm['cHH']: model = mHH
-        elif cname in cm['cVDCC']:       model = mVDCC
-        elif cname in cm['cPMCA']:       model = mPMCA
-        elif cname in cm['cPMCASensor']: model = mPMCASensor
-        else: model = mCalbindin
-        cModels.update({cname: equations(model,
-                                   name = cname,
-                                   dim = cdim)
-                      })
-    return cModels
 
 ### The solution class
 class solution:
@@ -42,7 +26,6 @@ class solution:
             self.bar.nextstep(1000*self.t, time.time()-self.timei)
             self.t += self.cmdArg['tf']/100.0
 
-        #print 't =', self.t, 's'
         dX = []
         j=0
         for cm in self.cModels.values():
@@ -57,8 +40,6 @@ class solution:
                 area, d = val
                 diccCa = 1
                 caFlux += diffCa*area*(X[self.cIdx[nbr]] - X[j])/d
-                #if cm.name == '1-0-0':
-                    #print t, cm.name, area, d, diffCa, (X[self.cIdx[nbr]] - X[j]), caFlux
 
             CaX = X[j:j+cm.nVar]
             CaX[0] += caFlux
@@ -142,6 +123,7 @@ class solution:
 
         if cmdArg['save']:
             file.close()
+
         ## Organise data in result.data dictionary
         for cname, idx in self.cIdx.items():
             for vname, v in self.data[cname].items():

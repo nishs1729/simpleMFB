@@ -1,4 +1,5 @@
 from parameters import *
+from modelEquations import equations
 
 ### Takes in location and size of each compartment
 ### and returns a dictionary of compartment name and
@@ -180,3 +181,19 @@ def initialIndex(cModels):
         cIdx.update({cname: i})
         i += cm.nVar
     return cIdx
+
+
+### get cModels containing the model equations
+def getModels(cmpts, cm):
+    cModels = od()
+    for cname, cdim in cmpts.items():
+        if cname in cm['cHH']: model = mHH
+        elif cname in cm['cVDCC']:       model = mVDCC
+        elif cname in cm['cPMCA']:       model = mPMCA
+        elif cname in cm['cPMCASensor']: model = mPMCASensor
+        else: model = mCalbindin
+        cModels.update({cname: equations(model,
+                                   name = cname,
+                                   dim = cdim)
+                      })
+    return cModels

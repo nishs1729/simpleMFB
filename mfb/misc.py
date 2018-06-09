@@ -11,7 +11,7 @@ def commandArg(argv):
 class FancyBar(IncrementalBar):
     t_sim = 0
     t_real = 0
-    suffix = Fore.CYAN + '%(simTime)0.2f msec [Real Time:'\
+    suffix = Fore.CYAN + '%(simTime)0.2f msec' + Fore.RED + ' [Real Time:'\
              + '%(realTime)d sec]' + Style.RESET_ALL
     def nextstep(self, t_sim, t_real):
         self.t_sim = t_sim
