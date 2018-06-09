@@ -9,12 +9,19 @@ def commandArg(argv):
 
 ### A fancy progress bar
 class FancyBar(IncrementalBar):
-    t = 0
-    suffix = Fore.CYAN + '%(done)0.2f msec' + Style.RESET_ALL
-    def nextstep(self, t):
-        self.t = t
+    t_sim = 0
+    t_real = 0
+    suffix = Fore.CYAN + '%(simTime)0.2f msec [Real Time:'\
+             + '%(realTime)d sec]' + Style.RESET_ALL
+    def nextstep(self, t_sim, t_real):
+        self.t_sim = t_sim
+        self.t_real = t_real
         self.next()
 
     @property
-    def done(self):
-        return self.t
+    def simTime(self):
+        return self.t_sim
+
+    @property
+    def realTime(self):
+        return self.t_real

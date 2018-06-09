@@ -36,7 +36,7 @@ class solution:
     def dXdt(self, t, X):
         if t>self.t:
 
-            self.bar.nextstep(1000*self.t)
+            self.bar.nextstep(1000*self.t, time.time()-self.timei)
             self.t += self.cmdArg['tf']/100.0
 
         #print 't =', self.t, 's'
@@ -69,6 +69,7 @@ class solution:
     def solve(self):
         ## Make a list of initial index of each compartment
         self.cIdx = initialIndex(self.cModels)
+        self.timei = time.time()
 
         ## Simulation time
         ti, tf = 0, self.cmdArg['tf']
@@ -131,7 +132,7 @@ class solution:
                 t = np.concatenate((t, sol.t))
                 y = np.concatenate((y, sol.y), axis=1)
 
-        self.bar.nextstep(1000*tf)
+        self.bar.nextstep(1000*tf, time.time()-self.timei)
         self.bar.finish()
 
         if cmdArg['save']:
