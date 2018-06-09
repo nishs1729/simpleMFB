@@ -25,3 +25,14 @@ class FancyBar(IncrementalBar):
     @property
     def realTime(self):
         return self.t_real
+
+
+### decorator function to time functions
+def timeit(method):
+    def timed(*args, **kw):
+        ts = time.time()
+        result = method(*args, **kw)
+        tf = time.time()
+        print 'Func: ' + method.__name__ + ' run in ' + str(tf-ts) + 's'
+        return result
+    return timed
