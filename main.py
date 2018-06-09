@@ -78,10 +78,15 @@ print '\n\tTotal time:', Fore.RED, timef-timei, Style.RESET_ALL
 if cmdArg['fig']:
     fig, ax = plt.subplots()
     for cname, c in result.data.items():
-        for vname, v in result.data[cname].items()[:5]:
+        for vname, v in result.data[cname].items()[:]:
             #if 'Ca' in vname: print vname, v[-1]
             #if vname == 'Ca':
             plt.plot(result.t*1e3, v, lw=1, label=vname)
+
+    if cmdArg['vfile']:
+        v = getV()
+        plt.plot(result.t*1e3, v(result.t), lw=1, label='V')
+
     plt.legend()
     plt.show()
 #"""

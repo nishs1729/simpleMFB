@@ -1,7 +1,7 @@
 from modelFunctions import *
 from collections import OrderedDict as od
 
-class mfb:
+class equations:
     def __init__(self, models, name, dim):
         self.name = name
         self.dim  = dim

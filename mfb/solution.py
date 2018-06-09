@@ -1,7 +1,7 @@
 from parameters import *
-from modelEquations import mfb
+from modelEquations import equations
 from MFBFunctions import *
-from misc import FancyBar
+from misc import FancyBar, getV
 
 ### get cModels containing the model equations
 def getModels(cmpts, cm):
@@ -12,7 +12,7 @@ def getModels(cmpts, cm):
         elif cname in cm['cPMCA']:       model = mPMCA
         elif cname in cm['cPMCASensor']: model = mPMCASensor
         else: model = mCalbindin
-        cModels.update({cname: mfb(model,
+        cModels.update({cname: equations(model,
                                    name = cname,
                                    dim = cdim)
                       })
@@ -25,8 +25,11 @@ class solution:
 
     def __init__(self, cModels, cmpts, cmdArg, simName='trial/'):
         self.cModels = cModels
-        self.cmdArg = cmdArg
         self.simName = simName
+        self.cmdArg = cmdArg
+        if cmdArg['vfile']:
+            self.vfile = getV('v.txt')
+
 
         for cname, cm in cModels.items():
             self.data.update({cname: cm.idx})
@@ -44,7 +47,9 @@ class solution:
         j=0
         for cm in self.cModels.values():
             ## All compartments have V value of (0,0,0)th compartment
-            #cm.V = cModels[0].V
+            #cm.V = cModels['0-0-0'].V
+            if cmdArg['vfile']:
+                cm.V = self.vfile(t)
 
             ## Calcium Flux
             caFlux = 0

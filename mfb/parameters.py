@@ -2,6 +2,7 @@ from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from collections import OrderedDict as od
 from mpl_toolkits.mplot3d import Axes3D
 from progress.bar import IncrementalBar
+from scipy.interpolate import interp1d
 from colorama import Fore, Back, Style
 from scipy import arange, linspace
 import matplotlib.pyplot as plt
@@ -34,7 +35,8 @@ cmdArg = {
     'fig'  : 0,
     'rtol' : 1e-4,
     'atol' : 1e-10,
-    'simName': 'trial/'
+    'simName': 'trial/',
+    'vfile': 0
 }
 
 ### Parameters
