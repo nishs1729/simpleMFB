@@ -1,4 +1,5 @@
-from parameters import *
+from modelFunctions import *
+from collections import OrderedDict as od
 
 class mfb:
     def __init__(self, models, name, dim):
