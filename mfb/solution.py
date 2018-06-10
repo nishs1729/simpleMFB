@@ -1,6 +1,11 @@
 from parameters import *
 from MFBFunctions import *
-from misc import FancyBar, getV
+try:
+    from misc import FancyBar
+except ImportError:
+    cmdArg['bar'] = 0
+    
+from misc import getV
 
 ### The solution class
 class solution:
@@ -14,7 +19,6 @@ class solution:
         if cmdArg['vfile']:
             self.vfile = getV('v.txt')
 
-
         for cname, cm in cModels.items():
             self.data.update({cname: cm.idx})
             cm.nbrs = getNeighbours(cm.name, cm.dim, cmpts)
@@ -22,9 +26,12 @@ class solution:
     ### Putting all compartments together
     def dXdt(self, t, X):
         if t>self.t:
-
-            self.bar.nextstep(1000*self.t, time.time()-self.timei)
-            self.t += self.cmdArg['tf']/100.0
+            if cmdArg['bar']:
+                self.bar.nextstep(1000*self.t, time.time()-self.timei)
+                self.t += self.cmdArg['tf']/100.0
+            else:
+                self.t += self.cmdArg['tf']/20
+                print 't:', self.t*1000, 'msec'
 
         dX = []
         j=0
@@ -68,8 +75,9 @@ class solution:
             X0 += cm.X0
         print 'Total equations:' + Fore.GREEN, len(X0), Style.RESET_ALL, '\n'
 
-        ## Solve ODE
-        self.bar = FancyBar('Solving' + Fore.RED, max=101)
+        ## Initialise Progressbar
+        if cmdArg['bar']:
+            self.bar = FancyBar('Solving' + Fore.RED, max=101)
 
         tinterval = []
         aa = arange(ti, tf, self.tcp)
@@ -118,8 +126,10 @@ class solution:
                 t = np.concatenate((t, sol.t))
                 y = np.concatenate((y, sol.y), axis=1)
 
-        self.bar.nextstep(1000*tf, time.time()-self.timei)
-        self.bar.finish()
+
+        if cmdArg['bar']:
+            self.bar.nextstep(1000*tf, time.time()-self.timei)
+            self.bar.finish()
 
         if cmdArg['save']:
             file.close()

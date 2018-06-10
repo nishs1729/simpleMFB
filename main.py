@@ -9,11 +9,8 @@ commandArg(sys.argv)
 print "Setting up system..."
 simName = 'trial/'
 
-modelDesc = "[0:1,0:1,0:1]"
-#modelDesc = "[0:2,0:2,0:2]"
-#modelDesc = "[0:5,0:5,0:5]"
-
-#modelDesc = modelDesc200
+### Enter model description
+modelDesc = test1
 
 ### MFB bounding box
 bBox = boundingBox(modelDesc)

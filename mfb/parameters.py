@@ -1,9 +1,12 @@
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from collections import OrderedDict as od
 from mpl_toolkits.mplot3d import Axes3D
-from progress.bar import IncrementalBar
 from scipy.interpolate import interp1d
-from colorama import Fore, Back, Style
+try:
+    from colorama import Fore, Back, Style
+except ImportError:
+    print 'install <colorama> module:\n\tsudo pip install colorama\n'
+
 from scipy import arange, linspace
 import matplotlib.pyplot as plt
 from scipy.integrate import *
@@ -73,6 +76,10 @@ modelDesc421_100 = '''[0:2:2, 0:20:4, 0:2:3]
                       [2:38, 0:20, 0:2]
                       '''
 
+test1 = "[0,0,0]"
+test8 = "[0:2,0:2,0:2]"
+
+
 ### Steady state initial values
 initVal = {
     'Ca':        [100e-9],
@@ -86,18 +93,25 @@ initVal = {
 
 ### Command line arguments
 cmdArg = od([
-    ('tf'   , 100e-3),
-    ('tstep', 1e-4),
-    ('tcp'  , 50e-3),
-    ('fig'  , 0),
-    ('geo'  , 0),
-    ('save' , 0),
-    ('dir'  , 'trial'),
-    ('vfile', 0),
-    ('rtol' , 1e-4),
-    ('atol' , 1e-10)
+    ('tf',      100e-3),
+    ('tstep',   1e-4),
+    ('tcp',     50e-3),
+    ('fig',     0),
+    ('geo',     0),
+    ('save',    0),
+    ('dir',     'trial'),
+    ('vfile',   0),
+    ('rtol',    1e-4),
+    ('atol',    1e-10),
+    ('bar',     1)
 ])
 
+try:
+    from progress.bar import IncrementalBar
+except ImportError:
+    print 'install <progress> module for progress bar:'\
+          + Fore.BLUE + '\n\tsudo pip install progress\n' + Fore.RESET
+    cmdArg['bar'] = 0
 ### Parameters
 ## Calcium diffusion constant
 diffCa = 220

@@ -12,7 +12,7 @@ def commandArg(argv):
 
         ## Update command arguments
         a = a.split('=')
-        if a[0] in ('fig', 'geo', 'save', 'vfile'): ##for int
+        if a[0] in ('fig', 'geo', 'save', 'vfile', 'bar'): ##for int
             cmdArg.update({a[0]: int(a[1])})
         elif a[0] in ('tf', 'tstep', 'tcp', 'rtol', 'atol'): ## for float
             cmdArg.update({a[0]: float(a[1])})
@@ -22,24 +22,26 @@ def commandArg(argv):
             cmdArg.update({a[0]: a[1]})
 
 ### A fancy progress bar
-class FancyBar(IncrementalBar):
-    t_sim = 0
-    t_real = 0
-    suffix = Fore.CYAN + '%(simTime)0.2f msec' + Fore.RED + ' [Real Time:'\
-             + '%(realTime)d sec]' + Style.RESET_ALL
-    def nextstep(self, t_sim, t_real):
-        self.t_sim = t_sim
-        self.t_real = t_real
-        self.next()
+try:
+    class FancyBar(IncrementalBar):
+        t_sim = 0
+        t_real = 0
+        suffix = Fore.CYAN + '%(simTime)0.2f msec' + Fore.RED + ' [Real Time:'\
+                 + '%(realTime)d sec]' + Style.RESET_ALL
+        def nextstep(self, t_sim, t_real):
+            self.t_sim = t_sim
+            self.t_real = t_real
+            self.next()
 
-    @property
-    def simTime(self):
-        return self.t_sim
+        @property
+        def simTime(self):
+            return self.t_sim
 
-    @property
-    def realTime(self):
-        return self.t_real
-
+        @property
+        def realTime(self):
+            return self.t_real
+except:
+    cmdArg['bar'] = 0
 
 ### decorator function to time functions
 def timeit(method):
