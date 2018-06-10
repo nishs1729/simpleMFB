@@ -5,9 +5,9 @@ from modelEquations import equations
 ### and returns a dictionary of compartment name and
 ### corresponding location ad size array
 def compartments(modelDesc):
-    modelInput = np.array([a.strip() for a in modelDesc.strip().split("\n")])
+    desc = np.array([a.strip() for a in modelDesc.strip().split("\n")])
     cmpts = od()
-    for a in modelInput:
+    for a in desc:
         a = a.strip('[').strip(']').split(',')
         #print 'a:', a
 
@@ -35,13 +35,34 @@ def compartments(modelDesc):
                     cmpts.update({mName: mVal})
     return cmpts
 
+def boundingBox(desc):
+    desc = np.array([a.strip() for a in desc.strip().split("\n")])
+
+    size, size1 = [0, 0, 0], [0, 0, 0]
+    flag = [0, 0, 0]
+    for a in desc[:]:
+        a = a.strip('[').strip(']').split(',')
+
+        for i in range(len(size)):
+            size[i] = max([int(s) for s in a[i].split(':')] + size[i:i+1])
+            if ':' not in a[i]:
+                size1[i] = max(size1[i], int(a[i]))
+            if size[i] > size1[i]:
+                flag[i] = 0
+            else:
+                flag[i] = 1
+
+    bbmax = [str(a) for a in map(lambda x, y: x+y, size, flag)]
+    bBox = "[0:" + bbmax[0] + ", 0:" + bbmax[1] + ", 0:" + bbmax[2] + "]"
+    return bBox
+
 ### Check if no compartment have overlapping volumes and
 ### there are no gaps in the model.
 ### comp is the bounding box of all compartments broken into
 ### smallest cubic unit. For eg. "[0:3,0:3,0:3]".
 ### cmpts is the dictionary of all the compartments.
-def checkGeometry(boundingBox, cmpts):
-    sCubes = compartments(boundingBox)
+def checkGeometry(bBox, cmpts):
+    sCubes = compartments(bBox)
 
     gap = []
     overlap = []
@@ -149,15 +170,16 @@ def getVertices(c):
     return np.array(verts)
 
 ### Draw each compartment of the bouton for visual verification
-def plotCompartments(cmpts, bb):
-    bb = [float(a) for a in bb]
+def plotCompartments(cmpts, bBox, cm):
+    bBox = bBox.strip('[').strip(']').split(',')
+    bBox = [float(a) for a in [bb.split(':')[1] for bb in bBox]]
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
 
     # set x,y,z limits
-    ax.set_xlim(0, bb[0])
-    ax.set_ylim(0, bb[1])
-    ax.set_zlim(0, bb[2])
+    ax.set_xlim(0, bBox[0])
+    ax.set_ylim(0, bBox[1])
+    ax.set_zlim(0, bBox[2])
 
     ax.axis('off')
 
@@ -165,7 +187,7 @@ def plotCompartments(cmpts, bb):
     for c in cmpts.values():
         verts = getVertices(c)
         collection = Poly3DCollection(verts, linewidths=0.5,
-                                    edgecolors='g', alpha=.4)
+                                    edgecolors='g', alpha=.2)
         collection.set_facecolor('cyan')
         ax.add_collection3d(collection)
         #axis('equal')

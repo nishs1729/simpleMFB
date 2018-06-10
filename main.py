@@ -9,28 +9,14 @@ commandArg(sys.argv)
 print "Setting up system..."
 simName = 'trial/'
 
-### Geometrical arrangement of all the compartments
-### a:n   = a, a+1, a+2,...,n-1
-### a:n:i = a, a+i, a+2*i,..., until (n-1)
-modelDesc = '''[0:2:2, 0:20:4, 0:2:3]
-                [38:40:2, 0:20:4, 0:2:3]
-                [0:40:5, 0:20:5, 7:10:3]
-                [0:40:4, 0:20:5, 5:7:2]
-                [0:40:2, 0:20:4, 3:5:2]
-                [2:38:2, 0:20:2, 2:3]
-                [2:38, 0:20, 0:2]
-                '''
-
-modelDesc = "[0:1,0:1,0:1]"
+#modelDesc = "[0:1,0:1,0:1]"
 #modelDesc = "[0:2,0:2,0:2]"
 #modelDesc = "[0:5,0:5,0:5]"
 
-### MFB bounding box
-bb = [40, 20, 10]
-bb = [1]*3 #+ [1]*2
+modelDesc = modelDesc200
 
-bb = [str(a) for a in bb]
-boundingBox = "[0:" + bb[0] + ",0:" + bb[1] + ",0:" + bb[2] + "]"
+### MFB bounding box
+bBox = boundingBox(modelDesc)
 
 ### Get all the compartments as
 ### {'i-j-k': [i,j,k,lenth,width,height]}
@@ -47,14 +33,16 @@ cm = {
 
 ### Check if no compartment have overlapping volumes and
 ### there are no gaps in the model
-print "Compartment geometry:"
-if checkGeometry(boundingBox, cmpts):
-    print Fore.GREEN + 'Go ahead! All good with the geometry\n' + Fore.RESET
-    print 'Compartments:\t', Fore.GREEN, len(cmpts), Style.RESET_ALL
-    if cmdArg['geo']:
-        plotCompartments(cmpts, bb, cm)
+if cmdArg['geo']:
+    print "Compartment geometry:"
+    if checkGeometry(bBox, cmpts):
+        print Fore.GREEN + 'Go ahead! All good with the geometry\n' + Fore.RESET
+        print 'Compartments:\t', Fore.GREEN, len(cmpts), Style.RESET_ALL
+        plotCompartments(cmpts, bBox, cm)
+    else:
+        exit()
 else:
-    exit()
+    print 'Compartments:\t', Fore.GREEN, len(cmpts), Style.RESET_ALL
 
 
 ### List of model objects for each compartment
