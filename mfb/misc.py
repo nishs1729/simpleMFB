@@ -3,9 +3,23 @@ from parameters import *
 ### Command line arguments
 def commandArg(argv):
     for a in argv[1:]:
-        a = a.split('=')
-        cmdArg.update({a[0]: float(a[1])})
+        ## See default arguments
+        if a == "--default" or a == "-d":
+            print '\nDefault command arguments:\n'
+            for k,v in cmdArg.items():
+                print k, ':\t', v
+            exit()
 
+        ## Update command arguments
+        a = a.split('=')
+        if a[0] in ('fig', 'geo', 'save', 'vfile'): ##for int
+            cmdArg.update({a[0]: int(a[1])})
+        elif a[0] in ('tf', 'tstep', 'tcp', 'rtol', 'atol'): ## for float
+            cmdArg.update({a[0]: float(a[1])})
+        elif a[0] in ('dir'): ## for directory
+            cmdArg.update({a[0]: a[1]+'/'})
+        else: ## for string
+            cmdArg.update({a[0]: a[1]})
 
 ### A fancy progress bar
 class FancyBar(IncrementalBar):

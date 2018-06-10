@@ -85,18 +85,18 @@ initVal = {
 }
 
 ### Command line arguments
-cmdArg = {
-    'tcp'  : 50e-3,
-    'geo'  : 0,
-    'save' : 0,
-    'tf'   : 100e-3,
-    'tstep': 1e-4,
-    'fig'  : 0,
-    'rtol' : 1e-4,
-    'atol' : 1e-10,
-    'simName': 'trial/',
-    'vfile': 0
-}
+cmdArg = od([
+    ('tf'   , 100e-3),
+    ('tstep', 1e-4),
+    ('tcp'  , 50e-3),
+    ('fig'  , 0),
+    ('geo'  , 0),
+    ('save' , 0),
+    ('dir'  , 'trial'),
+    ('vfile', 0),
+    ('rtol' , 1e-4),
+    ('atol' , 1e-10)
+])
 
 ### Parameters
 ## Calcium diffusion constant
