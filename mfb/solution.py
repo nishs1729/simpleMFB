@@ -4,7 +4,7 @@ try:
     from misc import FancyBar
 except ImportError:
     cmdArg['bar'] = 0
-    
+
 from misc import getV
 
 ### The solution class
@@ -45,8 +45,7 @@ class solution:
             caFlux = 0
             for nbr, val in cm.nbrs.items():
                 area, d = val
-                diccCa = 1
-                caFlux += diffCa*area*(X[self.cIdx[nbr]] - X[j])/d
+                caFlux += diffCa*area*(X[self.cIdx[nbr]] - X[j])/d/cm.vol*1e18
 
             CaX = X[j:j+cm.nVar]
             CaX[0] += caFlux

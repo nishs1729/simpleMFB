@@ -14,7 +14,7 @@ def commandArg(argv):
         a = a.split('=')
         if a[0] in ('fig', 'geo', 'save', 'vfile', 'bar'): ##for int
             cmdArg.update({a[0]: int(a[1])})
-        elif a[0] in ('tf', 'tstep', 'tcp', 'rtol', 'atol'): ## for float
+        elif a[0] in ('tf', 'tstep', 'tcp', 'rtol', 'atol', 'unit'): ## for float
             cmdArg.update({a[0]: float(a[1])})
         elif a[0] in ('dir'): ## for directory
             cmdArg.update({a[0]: a[1]+'/'})

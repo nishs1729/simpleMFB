@@ -103,6 +103,7 @@ def isNeighbour(a,b):
         midb = b[:3] + b[3:]/2.0
         #d = np.sqrt(np.sum((mida-midb)**2))
         d = np.sqrt(reduce(op.add, map(lambda x, y: (x-y)**2, mida, midb)))
+        u = cmdArg['unit']
 
         ## If a and b have an overlapping surface, return area and d
         if a[0] == b[0]+b[3] or a[0]+a[3] == b[0]:
@@ -112,7 +113,7 @@ def isNeighbour(a,b):
             if dy*dz==0:
                 return False
             else:
-                return float(dy*dz), float(d)
+                return float(dy*dz*u*u), float(d*u)
 
         elif a[1] == b[1]+b[4] or a[1]+a[4] == b[1]:
             dx = min(abs(a[0]+a[3] - b[0]), abs(b[0]+b[3] - a[0]))
@@ -121,7 +122,7 @@ def isNeighbour(a,b):
             if dx*dz==0:
                 return False
             else:
-                return float(dx*dz), float(d)
+                return float(dx*dz*u*u), float(d*u)
 
         elif a[2] == b[2]+b[5] or a[2]+a[5] == b[2]:
             dx = min(abs(a[0]+a[3] - b[0]), abs(b[0]+b[3] - a[0]))
@@ -130,7 +131,7 @@ def isNeighbour(a,b):
             if dx*dy==0:
                 return False
             else:
-                return float(dx*dy), float(d)
+                return float(dx*dy*u*u), float(d*u)
 
     else:
         return False
@@ -141,9 +142,9 @@ def getNeighbours(cname, cdim, cmpts):
     nbrs = {}
     for nk,nv in cmpts.items():
         if not cname==nk:
-            area = isNeighbour(np.array(cdim), np.array(nv))
-            if area:
-                nbrs.update({nk: area})
+            area_d = isNeighbour(np.array(cdim), np.array(nv))
+            if area_d:
+                nbrs.update({nk: area_d}) # area in nm^2
     return nbrs
 
 

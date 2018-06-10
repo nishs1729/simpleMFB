@@ -5,7 +5,7 @@ class equations:
     def __init__(self, models, name, dim):
         self.name = name
         self.dim  = dim
-        self.vol  = reduce(lambda x, y: x*y, dim[3:])
+        self.vol  = reduce(lambda x, y: x*y, dim[3:])*cmdArg['unit']**3
         #print nbrs, dim, self.vol
 
         # Indexing of the compartment variables

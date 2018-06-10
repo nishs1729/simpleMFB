@@ -103,7 +103,8 @@ cmdArg = od([
     ('vfile',   0),
     ('rtol',    1e-4),
     ('atol',    1e-10),
-    ('bar',     1)
+    ('bar',     1),
+    ('unit',    50) # smallest size unit in nm
 ])
 
 try:
@@ -112,9 +113,10 @@ except ImportError:
     print 'install <progress> module for progress bar:'\
           + Fore.BLUE + '\n\tsudo pip install progress\n' + Fore.RESET
     cmdArg['bar'] = 0
+
 ### Parameters
 ## Calcium diffusion constant
-diffCa = 220
+diffCa = 2.2e-4 # m^2/s
 
 ## HH
 C_m  = 1.0

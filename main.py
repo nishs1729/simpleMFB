@@ -10,7 +10,7 @@ print "Setting up system..."
 simName = 'trial/'
 
 ### Enter model description
-modelDesc = test1
+modelDesc = test8
 
 ### MFB bounding box
 bBox = boundingBox(modelDesc)
@@ -53,7 +53,6 @@ result = solution(cModels, cmpts, cmdArg, simName='trial/')
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     result.solve()
-
 
 
 timef = time.time()
