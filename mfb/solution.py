@@ -86,7 +86,7 @@ class solution:
 
         ## Saving data till current checkpoint in files
         if cmdArg['save']:
-            dir = 'data/'+cmdArg['dir']
+            dir = 'data/'+cmdArg['dir']+'/'
             if not os.path.exists(dir):
                 os.makedirs(dir)
             file = {}
@@ -94,7 +94,9 @@ class solution:
                 fname = dir+cname+'.txt'
                 file.update({cname: open(fname, 'w')})
 
-        ## Save the X0 values at each checkpoint
+            ## Save the X0 values at each checkpoint
+            fname = dir+'.chkptX0'
+            chkptX0 = open(fname, 'w')
 
 
         temp = 1
@@ -120,6 +122,9 @@ class solution:
                         np.savetxt(file[cname], v, header=header, fmt='%.4e', delimiter='\t')
                     else:
                         np.savetxt(file[cname], v, fmt='%.4e', delimiter='\t')
+
+                ## Save X0 at each checkpoint in file '.chkptX0'
+                np.savetxt(chkptX0, [[sol.t[-1]] + X0.tolist()], fmt='%.4e', delimiter='\t')
 
             ## Adding sol to solution till previous checkpoint
             if temp:
