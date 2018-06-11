@@ -8,6 +8,9 @@ def compartments(modelDesc):
     desc = np.array([a.strip() for a in modelDesc.strip().split("\n")])
     cmpts = od()
     for a in desc:
+        if 'unit' in a: # neglect the unit size
+            continue
+
         a = a.strip('[').strip(']').split(',')
         #print 'a:', a
 
@@ -40,7 +43,12 @@ def boundingBox(desc):
 
     size, size1 = [0, 0, 0], [0, 0, 0]
     flag = [0, 0, 0]
-    for a in desc[:]:
+    for a in desc:
+        if 'unit' in a:
+            a = int(a.split('=')[1])
+            cmdArg['unit'] = a
+            continue
+
         a = a.strip('[').strip(']').split(',')
 
         for i in range(len(size)):
@@ -144,7 +152,7 @@ def getNeighbours(cname, cdim, cmpts):
         if not cname==nk:
             area_d = isNeighbour(np.array(cdim), np.array(nv))
             if area_d:
-                nbrs.update({nk: area_d}) # area in nm^2
+                nbrs.update({nk: area_d}) # area in nm^2 | d in nm
     return nbrs
 
 
