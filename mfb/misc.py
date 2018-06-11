@@ -16,8 +16,6 @@ def commandArg(argv):
             cmdArg.update({a[0]: int(a[1])})
         elif a[0] in ('tf', 'tstep', 'tcp', 'rtol', 'atol', 'unit'): ## for float
             cmdArg.update({a[0]: float(a[1])})
-        elif a[0] in ('dir'): ## for directory
-            cmdArg.update({a[0]: a[1]+'/'})
         else: ## for string
             cmdArg.update({a[0]: a[1]})
 

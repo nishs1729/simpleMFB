@@ -103,7 +103,7 @@ cmdArg = od([
     ('fig',     0),
     ('geo',     0),
     ('save',    0),
-    ('dir',     'trial'),
+    ('dir',     'trial/'),
     ('vfile',   0),
     ('rtol',    1e-4),
     ('atol',    1e-10),

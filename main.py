@@ -10,7 +10,7 @@ print "Setting up system..."
 simName = 'trial/'
 
 ### Enter model description
-modelDesc = modelDesc200
+modelDesc = test8
 
 ### MFB bounding box
 bBox = boundingBox(modelDesc)

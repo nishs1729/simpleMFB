@@ -38,13 +38,14 @@ def compartments(modelDesc):
                     cmpts.update({mName: mVal})
     return cmpts
 
+### Return the bounding box for the compartments
 def boundingBox(desc):
     desc = np.array([a.strip() for a in desc.strip().split("\n")])
 
     size, size1 = [0, 0, 0], [0, 0, 0]
     flag = [0, 0, 0]
     for a in desc:
-        if 'unit' in a:
+        if 'unit' in a: # update the unit size
             a = int(a.split('=')[1])
             cmdArg['unit'] = a
             continue
