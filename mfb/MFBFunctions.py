@@ -7,6 +7,7 @@ from modelEquations import equations
 def compartments(modelDesc):
     desc = np.array([a.strip() for a in modelDesc.strip().split("\n")])
     cmpts = od()
+    cSurf = []
     for a in desc:
         if 'unit' in a: # neglect the unit size
             continue
@@ -36,6 +37,8 @@ def compartments(modelDesc):
                     mName = str(i) + '-' + str(j) + '-' + str(k)
                     mVal = [i,j,k] + arr[3:]
                     cmpts.update({mName: mVal})
+
+
     return cmpts
 
 ### Return the bounding box for the compartments
@@ -217,15 +220,63 @@ def initialIndex(cModels):
 
 ### get cModels containing the model equations
 def getModels(cmpts, cm):
+    model = {}
+    ## All compartments have Ca
+    for m in cmpts.keys():
+        model.update({m: {'Ca': []}})
+
+    ## Fill compartments with models as required
+    for m, cnames in cm.items():
+        for cname in cnames:
+            model[cname].update({m: []})
+
+    ## Generate models for compartments
     cModels = od()
     for cname, cdim in cmpts.items():
-        if cname in cm['cHH']: model = mHH
-        elif cname in cm['cVDCC']:       model = mVDCC
-        elif cname in cm['cPMCA']:       model = mPMCA
-        elif cname in cm['cPMCASensor']: model = mPMCASensor
-        else: model = mCalbindin
-        cModels.update({cname: equations(model,
-                                   name = cname,
-                                   dim = cdim)
-                      })
+        cModels.update({cname: equations(model[cname],
+                               name = cname,
+                               dim = cdim)})
+
     return cModels
+
+
+### Return names of components containing requested points
+### length, l : nm
+### center    : nm
+def hexPoints(num, l, bBox, center=[0, 0]):
+    shift = [np.array(a) for a in [[l,0], [0,l], [-l,0], [0,-l]]]
+    points = [np.array(center)]
+    sh, i, n = 0, 1, 1
+    while True:
+        br = False
+        for _ in range(2):
+            for __ in range(n):
+                i += 1
+                if i>num:
+                    br = True
+                    break
+                points.append(points[-1] + shift[sh])
+            sh = (sh+1)%4
+            if br:
+                break
+        n += 1
+        if br:
+            break
+
+    ### Get compartments
+    u = cmdArg['unit']
+    xy = np.array([aa.split(':') for aa in bBox.strip('[]').split(',')[:2]]).flatten()
+    xmin, xmax, ymin, ymax = [int(a) for a in xy]
+    midx, midy = int((xmax-xmin)/2.0), int((ymax-ymin)/2.0)
+
+    cname = []
+    for px, py in points:
+        #print px + midx*u, py + midy*u, '\t', int(midx + px/u), int(midy + py/u)
+        x, y = str(int(midx + px/u)), str(int(midy + py/u))
+        cname.append(x + '-' + y + '-0')
+
+    return cname
+
+### Return names of surface compartments
+def cSurf(cmpts):
+    pa

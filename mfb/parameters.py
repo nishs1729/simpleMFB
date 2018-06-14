@@ -120,7 +120,7 @@ except ImportError:
 
 ### Parameters
 ## Calcium diffusion constant
-diffCa = 2.2e-4 # m^2/s
+diffCa = 2.2e-10 # m^2/s
 
 ## HH
 C_m  = 1.0
@@ -158,6 +158,7 @@ b  = 0.25       # /s
 rsy = 0
 ras = 0
 rsp = 0
+
 
 ### Compartment list for specific model type
 cm = {
@@ -211,7 +212,9 @@ mHH = {
 ### compartment with Calbindin model
 mCalbindin = {
     'Ca': [],
-    'PMCA': []
-    #'calbindin': []
+    'calbindin': []
 }
-#set_printoptions(precision=4)
+mCa = {
+    'Ca': []
+}
+#np.set_printoptions(precision=4)

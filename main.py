@@ -7,10 +7,8 @@ timei = time.time() # for calculating total run time
 commandArg(sys.argv)
 
 print "Setting up system..."
-simName = 'trial/'
-
 ### Enter model description
-modelDesc = test8
+modelDesc = modelDesc200
 
 ### MFB bounding box
 bBox = boundingBox(modelDesc)
@@ -22,10 +20,11 @@ cmpts = compartments(modelDesc)
 
 ### Compartment list for specific model type
 cm = {
-    'cHH': ['0-0-0'],
-    'cVDCC': ['1-0-0', '1-1-0', '1-0-1', '1-1-1', '0-0-1', '0-1-0', '0-1-1'],
-    'cPMCA': [],
-    'cPMCASensor': []
+    'HH': ['0-0-0'],
+    'PMCA': [], #cSurf(cmpts)
+    'VDCC': [], #hexPoints(9, 500, bBox),
+    'caSensor': [],
+    'calbindin': [] #cmpts.keys()
 }
 
 ### Check if no compartment have overlapping volumes and
@@ -41,20 +40,18 @@ if cmdArg['geo']:
 else:
     print 'Compartments:\t', Fore.GREEN, len(cmpts), Style.RESET_ALL
 
-
 ### List of model objects for each compartment
 cModels = getModels(cmpts, cm)
-#print cModels
 
 ### Create a solution object
-result = solution(cModels, cmpts, cmdArg, simName='trial/')
+result = solution(cModels, cmpts)
 
 ### Solve the equations
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     result.solve()
 
-
+### Display total time taken
 timef = time.time()
 print '\n\tTotal time:', Fore.RED, timef-timei, Style.RESET_ALL
 

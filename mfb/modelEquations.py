@@ -3,6 +3,7 @@ from collections import OrderedDict as od
 
 class equations:
     def __init__(self, models, name, dim):
+        self.models = models
         self.name = name
         self.dim  = dim
         self.vol  = reduce(lambda x, y: x*y, dim[3:])*cmdArg['unit']**3
@@ -12,7 +13,6 @@ class equations:
         i = 0
         self.idx = od()
         self.X0 = []
-        self.models = models
         if 'Ca' in models:
             if models['Ca'] == []: self.X0 += initVal['Ca']
             else: self.X0 += models['Ca']

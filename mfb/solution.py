@@ -12,10 +12,10 @@ class solution:
     data = od()
     t = 0
 
-    def __init__(self, cModels, cmpts, cmdArg, simName='trial/'):
+    def __init__(self, cModels, cmpts, simName='trial/'):
         self.cModels = cModels
         self.simName = simName
-        self.cmdArg = cmdArg
+
         if cmdArg['vfile']:
             self.vfile = getV('v.txt')
 
@@ -28,9 +28,9 @@ class solution:
         if t>self.t:
             if cmdArg['bar']:
                 self.bar.nextstep(1000*self.t, time.time()-self.timei)
-                self.t += self.cmdArg['tf']/100.0
+                self.t += cmdArg['tf']/100.0
             else:
-                self.t += self.cmdArg['tf']/20
+                self.t += cmdArg['tf']/20
                 print 't:', self.t*1000, 'msec'
 
         dX = []
@@ -64,9 +64,9 @@ class solution:
         self.timei = time.time()
 
         ## Simulation time
-        ti, tf = 0, self.cmdArg['tf']
-        tstep = self.cmdArg['tstep']
-        self.tcp = self.cmdArg['tcp']
+        ti, tf = 0, cmdArg['tf']
+        tstep = cmdArg['tstep']
+        self.tcp = cmdArg['tcp']
 
         ## initial values
         X0 = []
