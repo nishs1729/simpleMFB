@@ -49,17 +49,17 @@ class equations:
                             ('cbH2M0', i+6), ('cbH2M1', i+7), ('cbH2M2', i+8)]))
             i += len(initVal['calbindin'])
 
-        if 'caSensor' in models:
-            if models['caSensor'] == []: self.X0 += initVal['caSensor']
-            else: self.X0 += models['caSensor']
+        if 'AZ' in models:
+            if models['AZ'] == []: self.X0 += initVal['AZ']
+            else: self.X0 += models['AZ']
             self.idx.update(
-                    od([('CaS00', i+0 ), ('CaS10', i+1 ), ('CaS20', i+2 ),
-                        ('CaS30', i+3 ), ('CaS40', i+4 ), ('CaS50', i+5 ),
-                        ('CaS01', i+6 ), ('CaS11', i+7 ), ('CaS21', i+8 ),
-                        ('CaS31', i+9 ), ('CaS41', i+10), ('CaS51', i+11),
-                        ('CaS02', i+12), ('CaS12', i+13), ('CaS22', i+14),
-                        ('CaS32', i+15), ('CaS42', i+16), ('CaS52', i+17)]))
-            i += len(initVal['caSensor'])
+                    od([('AZ00', i+0 ), ('AZ10', i+1 ), ('AZ20', i+2 ),
+                        ('AZ30', i+3 ), ('AZ40', i+4 ), ('AZ50', i+5 ),
+                        ('AZ01', i+6 ), ('AZ11', i+7 ), ('AZ21', i+8 ),
+                        ('AZ31', i+9 ), ('AZ41', i+10), ('AZ51', i+11),
+                        ('AZ02', i+12), ('AZ12', i+13), ('AZ22', i+14),
+                        ('AZ32', i+15), ('AZ42', i+16), ('AZ52', i+17)]))
+            i += len(initVal['AZ'])
 
         self.nVar = i
         #rint 'X0:', self.X0, '\n', idx, '\n', self.nVar, '\n\n'
@@ -94,10 +94,10 @@ class equations:
             VDCC_C0, VDCC_C1, VDCC_C2, VDCC_C3, VDCC_O = X[i:i+j]
             i += j
 
-        if 'caSensor' in self.models:
-            j = len(initVal['caSensor'])
-            CaS00, CaS10, CaS20, CaS30, CaS40, CaS50, CaS01, CaS11, CaS21, \
-            CaS31, CaS41, CaS51, CaS02, CaS12, CaS22, CaS32, CaS42, CaS52 = X[i:i+j]
+        if 'AZ' in self.models:
+            j = len(initVal['AZ'])
+            AZ00, AZ10, AZ20, AZ30, AZ40, AZ50, AZ01, AZ11, AZ21, \
+            AZ31, AZ41, AZ51, AZ02, AZ12, AZ22, AZ32, AZ42, AZ52 = X[i:i+j]
             i += j
 
 
@@ -174,56 +174,56 @@ class equations:
             self.dX[0] += dCa
 
         ### Calcium Sensors
-        if 'caSensor' in self.models:
+        if 'AZ' in self.models:
             #'''
-            dCa += + (ab - af*Ca)*(CaS01 + CaS11 + CaS21 + CaS31 + CaS41 + CaS51)\
-                   + 2*ab*b*(CaS02 + CaS12 + CaS22 + CaS32 + CaS42 + CaS52)\
-                   - 2*af*(CaS00 + CaS10 + CaS20 + CaS30 + CaS40 + CaS50)*Ca\
-                   + sb*((CaS10 + CaS11 + CaS12) + 2*b*(CaS20 + CaS21 + CaS22)\
-                     + 3*b**2*(CaS30 + CaS31 + CaS32) + 4*b**3*(CaS40 + CaS41 + CaS42)\
-                     + 5*b**4*(CaS50 + CaS51 + CaS52))\
-                   - sf*((CaS40 + CaS42 + CaS41) + 2*(CaS30 + CaS31 + CaS32)\
-                     + 3*(CaS20 + CaS21 + CaS22) + 4*(CaS10 + CaS12 + CaS11)\
-                     + 5*(CaS00 + CaS01 + CaS02))*Ca
+            dCa += + (ab - af*Ca)*(AZ01 + AZ11 + AZ21 + AZ31 + AZ41 + AZ51)\
+                   + 2*ab*b*(AZ02 + AZ12 + AZ22 + AZ32 + AZ42 + AZ52)\
+                   - 2*af*(AZ00 + AZ10 + AZ20 + AZ30 + AZ40 + AZ50)*Ca\
+                   + sb*((AZ10 + AZ11 + AZ12) + 2*b*(AZ20 + AZ21 + AZ22)\
+                     + 3*b**2*(AZ30 + AZ31 + AZ32) + 4*b**3*(AZ40 + AZ41 + AZ42)\
+                     + 5*b**4*(AZ50 + AZ51 + AZ52))\
+                   - sf*((AZ40 + AZ42 + AZ41) + 2*(AZ30 + AZ31 + AZ32)\
+                     + 3*(AZ20 + AZ21 + AZ22) + 4*(AZ10 + AZ12 + AZ11)\
+                     + 5*(AZ00 + AZ01 + AZ02))*Ca
 
-            dCaS00 =  + sb*CaS10 + ab*CaS01 - (5*sf + 2*af)*CaS00*Ca
-            dCaS10 =  + 2*sb*b*CaS20 + 5*sf*CaS00*Ca + ab*CaS11\
-                      - ((2*af + 4*sf)*Ca + sb)*CaS10
-            dCaS20 =  + 3*sb*b**2*CaS30 + 4*sf*CaS10*Ca + ab*CaS21\
-                      - ((2*af + 3*sf)*Ca + 2*sb*b)*CaS20
-            dCaS30 =  + 4*sb*b**3*CaS40 + 3*sf*CaS20*Ca + ab*CaS31\
-                      - (2*(af + sf)*Ca + 3*sb*b**2)*CaS30
-            dCaS40 =  + 5*sb*b**4*CaS50 + 2*sf*CaS30*Ca + ab*CaS41\
-                      - ((2*af + sf)*Ca + 4*sb*b**3)*CaS40
-            dCaS50 =  + ab*CaS51 + (sf*CaS40 - 2*af*CaS50)*Ca - 5*sb*b**4*CaS50
+            dAZ00 =  + sb*AZ10 + ab*AZ01 - (5*sf + 2*af)*AZ00*Ca
+            dAZ10 =  + 2*sb*b*AZ20 + 5*sf*AZ00*Ca + ab*AZ11\
+                      - ((2*af + 4*sf)*Ca + sb)*AZ10
+            dAZ20 =  + 3*sb*b**2*AZ30 + 4*sf*AZ10*Ca + ab*AZ21\
+                      - ((2*af + 3*sf)*Ca + 2*sb*b)*AZ20
+            dAZ30 =  + 4*sb*b**3*AZ40 + 3*sf*AZ20*Ca + ab*AZ31\
+                      - (2*(af + sf)*Ca + 3*sb*b**2)*AZ30
+            dAZ40 =  + 5*sb*b**4*AZ50 + 2*sf*AZ30*Ca + ab*AZ41\
+                      - ((2*af + sf)*Ca + 4*sb*b**3)*AZ40
+            dAZ50 =  + ab*AZ51 + (sf*AZ40 - 2*af*AZ50)*Ca - 5*sb*b**4*AZ50
 
-            dCaS01 =  + 2*ab*b*CaS02 + sb*CaS11 + 2*af*CaS00*Ca\
-                      - ((af + 5*sf)*Ca + ab)*CaS01
-            dCaS11 =  + 2*(ab*CaS12 + sb*CaS21)*b + (5*sf*CaS01 + 2*af*CaS10)*Ca\
-                      - ((af + 4*sf)*Ca + ab + sb)*CaS11
-            dCaS21 =  + 2*ab*b*CaS22 + 3*sb*b**2*CaS31 + (4*sf*CaS11 + 2*af*CaS20)*Ca\
-                      - ((af + 3*sf)*Ca + ab*CaS21 + 2*sb*b)*CaS21
-            dCaS31 =  + 2*ab*b*CaS32 + 4*sb*b**3*CaS41 + (2*af*CaS30 + 3*sf*CaS21)*Ca\
-                      - ((af + + 2*sf)*Ca + ab + 2*sf*Ca + 3*sb*b**2)*CaS31
-            dCaS41 =  + 2*ab*b*CaS42 + 5*sb*b**4*CaS51 + 2*(sf*CaS31 + af*CaS40)*Ca\
-                      - ((af + sf)*Ca + ab + 4*sb*b**3)*CaS41
-            dCaS51 =  + 2*ab*b*CaS52 + (2*af*CaS50 + sf*CaS41)*Ca\
-                      - (af*Ca + ab + 5*sb*b**4)*CaS51
+            dAZ01 =  + 2*ab*b*AZ02 + sb*AZ11 + 2*af*AZ00*Ca\
+                      - ((af + 5*sf)*Ca + ab)*AZ01
+            dAZ11 =  + 2*(ab*AZ12 + sb*AZ21)*b + (5*sf*AZ01 + 2*af*AZ10)*Ca\
+                      - ((af + 4*sf)*Ca + ab + sb)*AZ11
+            dAZ21 =  + 2*ab*b*AZ22 + 3*sb*b**2*AZ31 + (4*sf*AZ11 + 2*af*AZ20)*Ca\
+                      - ((af + 3*sf)*Ca + ab*AZ21 + 2*sb*b)*AZ21
+            dAZ31 =  + 2*ab*b*AZ32 + 4*sb*b**3*AZ41 + (2*af*AZ30 + 3*sf*AZ21)*Ca\
+                      - ((af + + 2*sf)*Ca + ab + 2*sf*Ca + 3*sb*b**2)*AZ31
+            dAZ41 =  + 2*ab*b*AZ42 + 5*sb*b**4*AZ51 + 2*(sf*AZ31 + af*AZ40)*Ca\
+                      - ((af + sf)*Ca + ab + 4*sb*b**3)*AZ41
+            dAZ51 =  + 2*ab*b*AZ52 + (2*af*AZ50 + sf*AZ41)*Ca\
+                      - (af*Ca + ab + 5*sb*b**4)*AZ51
 
-            dCaS02 =  + af*CaS01*Ca + sb*CaS12 - (2*ab*b + 5*sf*Ca)*CaS02
-            dCaS12 =  + (af*CaS11 + 5*sf*CaS02)*Ca + 2*sb*b*CaS22\
-                      - (2*ab*b + 4*sf*Ca + sb)*CaS12
-            dCaS22 =  + (af*CaS21 + 4*sf*CaS12)*Ca + 3*sb*b**2*CaS32\
-                      - (2*(ab + sb)*b + 3*sf*Ca)*CaS22
-            dCaS32 =  + 4*sb*b**3*CaS42 + (af*CaS31 + 3*sf*CaS22)*Ca\
-                      - (2*(ab*b + sf*Ca) + 3*sb*b**2)*CaS32
-            dCaS42 =  + (af*CaS41 + 2*sf*CaS32)*Ca + 5*sb*b**4*CaS52\
-                      - (2*ab*b + sf*Ca + 4*sb*b**3)*CaS42
-            dCaS52 =  + af*CaS51*Ca + sf*CaS42*Ca - 2*ab*b*CaS52 - 5*sb*b**4*CaS52
+            dAZ02 =  + af*AZ01*Ca + sb*AZ12 - (2*ab*b + 5*sf*Ca)*AZ02
+            dAZ12 =  + (af*AZ11 + 5*sf*AZ02)*Ca + 2*sb*b*AZ22\
+                      - (2*ab*b + 4*sf*Ca + sb)*AZ12
+            dAZ22 =  + (af*AZ21 + 4*sf*AZ12)*Ca + 3*sb*b**2*AZ32\
+                      - (2*(ab + sb)*b + 3*sf*Ca)*AZ22
+            dAZ32 =  + 4*sb*b**3*AZ42 + (af*AZ31 + 3*sf*AZ22)*Ca\
+                      - (2*(ab*b + sf*Ca) + 3*sb*b**2)*AZ32
+            dAZ42 =  + (af*AZ41 + 2*sf*AZ32)*Ca + 5*sb*b**4*AZ52\
+                      - (2*ab*b + sf*Ca + 4*sb*b**3)*AZ42
+            dAZ52 =  + af*AZ51*Ca + sf*AZ42*Ca - 2*ab*b*AZ52 - 5*sb*b**4*AZ52
 
 
-            self.dX += [dCaS00, dCaS10, dCaS20, dCaS30, dCaS40, dCaS50, dCaS01, dCaS11, dCaS21,\
-                        dCaS31, dCaS41, dCaS51, dCaS02, dCaS12, dCaS22, dCaS32, dCaS42, dCaS52]
+            self.dX += [dAZ00, dAZ10, dAZ20, dAZ30, dAZ40, dAZ50, dAZ01, dAZ11, dAZ21,\
+                        dAZ31, dAZ41, dAZ51, dAZ02, dAZ12, dAZ22, dAZ32, dAZ42, dAZ52]
             self.dX[0] += dCa
 
         return  self.dX

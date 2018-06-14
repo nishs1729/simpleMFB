@@ -89,7 +89,7 @@ initVal = {
     'Ca':        [100e-9],
     'HH':        [-64.0, 0.05, 0.6, 0.32],
     'PMCA':      [2.39e-6, 5.82e-7, 4.54e-10], # Total conc. = 2.98e-6 uM
-    'caSensor':  [1.65e-6] + [0.0]*17,
+    'AZ':  [1.65e-6] + [0.0]*17,
     'VDCC':      [80e-6, 0.0, 0.0, 0.0, 0.0],
     'calbindin': [1.48e-05, 7.00e-06, 8.27e-07, 1.21e-05, 5.74e-06, 6.79e-07,
                   2.49e-06, 1.18e-06, 1.39e-07] # Total conc. = 45e-6 uM
@@ -165,7 +165,7 @@ cm = {
     'cHH': ['0-0-0'],
     'cVDCC': ['1-0-0', '1-1-0', '1-0-1', '1-1-1', '0-0-1', '0-1-0', '0-1-1'],
     'cPMCA': [],
-    'cPMCASensor': []
+    'cPMAZ': []
 }
 
 ### All available model components
@@ -174,7 +174,7 @@ models = {
     'HH': [],
     'PMCA': [],
     'VDCC': [],
-    'caSensor': [],
+    'AZ': [],
     'calbindin': []
 }
 
@@ -193,11 +193,11 @@ mPMCA = {
     'calbindin': []
 }
 
-### compartment with PMCA and caSensor models
-mPMCASensor = {
+### compartment with PMCA and AZ models
+mPMAZ = {
     'Ca': [],
     'PMCA': [],
-    'caSensor': [],
+    'AZ': [],
     'calbindin': []
 }
 
