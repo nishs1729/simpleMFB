@@ -8,7 +8,7 @@ commandArg(sys.argv)
 
 print "Setting up system..."
 ### Enter model description
-modelDesc = modelDesc200
+modelDesc = test1
 
 ### MFB bounding box
 bBox = boundingBox(modelDesc)
@@ -22,10 +22,16 @@ cmpts = compartments(modelDesc)
 cm = {
     'HH': ['0-0-0'],
     'PMCA': [], #cSurf(cmpts)
-    'VDCC': [], #hexPoints(9, 500, bBox),
+    'pqVDCC': [], #hexPoints(9, 500, bBox),
+    'nVDCC': [], #hexPoints(9, 500, bBox),
+    'rVDCC': [], #hexPoints(9, 500, bBox),
     'AZ': [],
     'calbindin': [] #cmpts.keys()
 }
+
+### List of model objects for each compartment
+cModels = getModels(cmpts, cm)
+print [a.models for a in cModels.values()]
 
 ### Check if no compartment have overlapping volumes and
 ### there are no gaps in the model
@@ -39,9 +45,6 @@ if cmdArg['geo']:
         exit()
 else:
     print 'Compartments:\t', Fore.GREEN, len(cmpts), Style.RESET_ALL
-
-### List of model objects for each compartment
-cModels = getModels(cmpts, cm)
 
 ### Create a solution object
 result = solution(cModels, cmpts)
@@ -61,8 +64,8 @@ if cmdArg['fig']:
     for cname, c in result.data.items():
         for vname, v in result.data[cname].items()[:]:
             #if 'Ca' in vname: print vname, v[-1]
-            #if vname == 'Ca':
-            plt.plot(result.t*1e3, v, lw=1, label=vname)
+            #if len(vname) > 1:
+                plt.plot(result.t*1e3, v, lw=1, label=vname)
 
     if cmdArg['vfile']:
         v = getV()
