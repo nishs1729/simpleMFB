@@ -22,7 +22,7 @@ cmpts = compartments(modelDesc)
 cm = {
     'HH': ['0-0-0'],
     'PMCA': [], #cSurf(cmpts)
-    'pqVDCC': [], #hexPoints(9, 500, bBox),
+    'pqVDCC': ['0-0-0'], #hexPoints(9, 500, bBox),
     'nVDCC': [], #hexPoints(9, 500, bBox),
     'rVDCC': [], #hexPoints(9, 500, bBox),
     'AZ': [],
@@ -64,7 +64,7 @@ if cmdArg['fig']:
     for cname, c in result.data.items():
         for vname, v in result.data[cname].items()[:]:
             #if 'Ca' in vname: print vname, v[-1]
-            #if len(vname) > 1:
+            if len(vname) > 1:
                 plt.plot(result.t*1e3, v, lw=1, label=vname)
 
     if cmdArg['vfile']:

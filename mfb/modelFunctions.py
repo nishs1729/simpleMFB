@@ -27,8 +27,8 @@ def I_L(V):         return g_L * (V - E_L)
 
 
 ### pqVDCC
-pq_a10, pq_a20, pq_a30, pq_a40, pq_a = 5890, 9210, 5200, 1823180, 247710 # /sec
-pq_b10, pq_b20, pq_b30, pq_b40, pq_b = 14990, 6630, 132800, 248580, 8280 # /sec
+pq_a10, pq_a20, pq_a30, pq_a40, pq_a = np.array([5890, 9210, 5200, 1823180, 247710])/1 # /sec
+pq_b10, pq_b20, pq_b30, pq_b40, pq_b = np.array([14990, 6630, 132800, 248580, 8280])/1 # /sec
 pq_V1,  pq_V2,  pq_V3,  pq_V4        = 62.61, 33.92, 135.08, 20.86 # mV
 
 ### pqVDCC gating variables
@@ -73,21 +73,21 @@ def n_b3(V):    return n_b30*np.exp(-V/n_V3)
 def n_a4(V):    return n_a40*np.exp( V/n_V4)
 def n_b4(V):    return n_b40*np.exp(-V/n_V4)
 
-"""
-### pqVDCC from CA3 MCell model
-pq_a10, pq_a20, pq_a30, pq_a40 = 4040, 6700, 4390, 17330 # /sec
-pq_b10, pq_b20, pq_b30, pq_b40 = 2880, 6300, 8160, 1840  # /sec
-pq_V1,  pq_V2,  pq_V3,  pq_V4  = 49.14, 42.08, 55.31, 26.55 # mV
 
+### pqVDCC from CA3 MCell model
+#pq_a10, pq_a20, pq_a30, pq_a40 = 4040, 6700, 4390, 17330 # /sec
+#pq_b10, pq_b20, pq_b30, pq_b40 = 2880, 6300, 8160, 1840  # /sec
+#pq_V1,  pq_V2,  pq_V3,  pq_V4  = 49.14, 42.08, 55.31, 26.55 # mV
+"""
 ### pqVDCC gating variables from CA3 MCell model
-def pq_a1(V):    return pq_a10*np.exp( V/pq_V1)
-def pq_b1(V):    return pq_b10*np.exp(-V/pq_V1)
-def pq_a2(V):    return pq_a20*np.exp( V/pq_V2)
-def pq_b2(V):    return pq_b20*np.exp(-V/pq_V2)
-def pq_a3(V):    return pq_a30*np.exp( V/pq_V3)
-def pq_b3(V):    return pq_b30*np.exp(-V/pq_V3)
-def pq_a4(V):    return pq_a40*np.exp( V/pq_V4)
-def pq_b4(V):    return pq_b40*np.exp(-V/pq_V4)
+def a1(V):    return pq_a10*np.exp( V/pq_V1)
+def b1(V):    return pq_b10*np.exp(-V/pq_V1)
+def a2(V):    return pq_a20*np.exp( V/pq_V2)
+def b2(V):    return pq_b20*np.exp(-V/pq_V2)
+def a3(V):    return pq_a30*np.exp( V/pq_V3)
+def b3(V):    return pq_b30*np.exp(-V/pq_V3)
+def a4(V):    return pq_a40*np.exp( V/pq_V4)
+def b4(V):    return pq_b40*np.exp(-V/pq_V4)
 
 ### pqVDCC equation from CA3 MCell model
 if 'pqVDCC' in self.models:
