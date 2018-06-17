@@ -24,7 +24,7 @@ class solution:
             cm.nbrs = getNeighbours(cm.name, cm.dim, cmpts)
 
     ### Putting all compartments together
-    def dXdt(self, t, X):
+    def dXdt(self, X, t):
         if t>self.t:
             if cmdArg['bar']:
                 self.bar.nextstep(1000*self.t, time.time()-self.timei)
@@ -103,11 +103,10 @@ class solution:
         for ti, tf in tinterval:
             t_eval = linspace(ti, tf, round((tf - ti)/tstep) + 1)[:-1]
 
-            sol = solve_ivp(self.dXdt, [ti, tf], X0, t_eval=t_eval,
-                            rtol=cmdArg['rtol'], atol=cmdArg['atol'])
+            sol = odeint(self.dXdt, X0, t_eval)
 
             ## Last values of sol as X0
-            X0 = sol.y.T[-1]
+            X0 = sol[-1,:]
 
             ## Saving data till current checkpoint in files
             if cmdArg['save']:
@@ -117,24 +116,23 @@ class solution:
                     for vn in self.data[cname]:
                         header += vn + '\t\t'
 
-                    v = np.concatenate(([sol.t], sol.y[self.cIdx[cname]:self.cIdx[cname]+cm.nVar])).T
+                    v = np.concatenate(([t_eval], sol.T[self.cIdx[cname]:self.cIdx[cname]+cm.nVar])).T
                     if temp:
                         np.savetxt(file[cname], v, header=header, fmt='%.4e', delimiter='\t')
                     else:
                         np.savetxt(file[cname], v, fmt='%.4e', delimiter='\t')
 
                 ## Save X0 at each checkpoint in file '.chkptX0'
-                np.savetxt(chkptX0, [[sol.t[-1]] + X0.tolist()], fmt='%.4e', delimiter='\t')
+                np.savetxt(chkptX0, [[t_eval[-1]] + X0.tolist()], fmt='%.4e', delimiter='\t')
 
             ## Adding sol to solution till previous checkpoint
             if temp:
-                t = sol.t
-                y = sol.y
+                t = t_eval
+                y = sol.T
                 temp = 0
             else:
-                t = np.concatenate((t, sol.t))
-                y = np.concatenate((y, sol.y), axis=1)
-
+                t = np.concatenate((t, t_eval))
+                y = np.concatenate((y, sol.T), axis=1)
 
         if cmdArg['bar']:
             self.bar.nextstep(1000*tf, time.time()-self.timei)
