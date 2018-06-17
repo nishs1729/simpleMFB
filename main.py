@@ -23,8 +23,8 @@ cm = {
     'HH': ['0-0-0'],
     'PMCA': [], #cSurf(cmpts)
     'pqVDCC': ['0-0-0'], #hexPoints(9, 500, bBox),
-    'nVDCC': [], #hexPoints(9, 500, bBox),
-    'rVDCC': [], #hexPoints(9, 500, bBox),
+    'nVDCC': ['0-0-0'], #hexPoints(9, 500, bBox),
+    'rVDCC': ['0-0-0'], #hexPoints(9, 500, bBox),
     'AZ': [],
     'calbindin': [] #cmpts.keys()
 }

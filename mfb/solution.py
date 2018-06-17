@@ -76,7 +76,7 @@ class solution:
 
         ## Initialise Progressbar
         if cmdArg['bar']:
-            self.bar = FancyBar('Solving' + Fore.RED, max=101)
+            self.bar = FancyBar(Fore.RED, max=101)
 
         tinterval = []
         aa = arange(ti, tf, self.tcp)

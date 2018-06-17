@@ -41,20 +41,20 @@ class equations:
             i += len(initVal['pqVDCC'])
             self.V = 0
 
-        if 'rVDCC' in models:
-            if models['rVDCC'] == []: self.X0 += initVal['rVDCC']
-            else: self.X0 += models['rVDCC']
-            self.idx.update(od(zip(['rVDCC_C0', 'rVDCC_C1', 'rVDCC_C2', 'rVDCC_C3', 'rVDCC_C4', 'rVDCC_O'],
-                                    range(i,i+6))))
-            i += len(initVal['rVDCC'])
-            self.V = 0
-
         if 'nVDCC' in models:
             if models['nVDCC'] == []: self.X0 += initVal['nVDCC']
             else: self.X0 += models['nVDCC']
             self.idx.update(od(zip(['nVDCC_C0', 'nVDCC_C1', 'nVDCC_C2', 'nVDCC_C3', 'nVDCC_C4', 'nVDCC_O'],
                                     range(i,i+6))))
             i += len(initVal['nVDCC'])
+            self.V = 0
+
+        if 'rVDCC' in models:
+            if models['rVDCC'] == []: self.X0 += initVal['rVDCC']
+            else: self.X0 += models['rVDCC']
+            self.idx.update(od(zip(['rVDCC_C0', 'rVDCC_C1', 'rVDCC_C2', 'rVDCC_C3', 'rVDCC_C4', 'rVDCC_O'],
+                                    range(i,i+6))))
+            i += len(initVal['rVDCC'])
             self.V = 0
 
         if 'calbindin' in models:
@@ -111,14 +111,14 @@ class equations:
             pqVDCC_C0, pqVDCC_C1, pqVDCC_C2, pqVDCC_C3, pqVDCC_C4, pqVDCC_O = X[i:i+j]
             i += j
 
-        if 'rVDCC' in self.models:
-            j = len(initVal['rVDCC'])
-            rVDCC_C0, rVDCC_C1, rVDCC_C2, rVDCC_C3, rVDCC_C4, rVDCC_O = X[i:i+j]
-            i += j
-
         if 'nVDCC' in self.models:
             j = len(initVal['nVDCC'])
             nVDCC_C0, nVDCC_C1, nVDCC_C2, nVDCC_C3, nVDCC_C4, nVDCC_O = X[i:i+j]
+            i += j
+
+        if 'rVDCC' in self.models:
+            j = len(initVal['rVDCC'])
+            rVDCC_C0, rVDCC_C1, rVDCC_C2, rVDCC_C3, rVDCC_C4, rVDCC_O = X[i:i+j]
             i += j
 
         if 'AZ' in self.models:
@@ -154,7 +154,7 @@ class equations:
 
         ### pqVDCC
         if 'pqVDCC' in self.models:
-            '''dCa += 0 #1*pqVDCC_O
+            dCa += 1*pqVDCC_O
             dpqVDCC_C0 = + pq_b1(self.V)*pqVDCC_C1 - pq_a1(self.V)*pqVDCC_C0
             dpqVDCC_C1 = + pq_a1(self.V)*pqVDCC_C0 + pq_b2(self.V)*pqVDCC_C2 \
                          -(pq_b1(self.V) + pq_a2(self.V))*pqVDCC_C1
@@ -168,22 +168,24 @@ class equations:
 
             self.dX += [dpqVDCC_C0, dpqVDCC_C1, dpqVDCC_C2, dpqVDCC_C3, dpqVDCC_C4, dpqVDCC_O]
             self.dX[0] += dCa
-            '''
-            ### pqVDCC equation from CA3 MCell model
-            dCa += 19.3*self.V*(0.3993 - np.exp(-self.V/80.36))/(1 - np.exp(self.V/80.36))*pqVDCC_O
-            dpqVDCC_C0 = + pq_b1(self.V)*pqVDCC_C1 - pq_a1(self.V)*pqVDCC_C0
-            dpqVDCC_C1 = + pq_a1(self.V)*pqVDCC_C0 + pq_b2(self.V)*pqVDCC_C2 \
-                         -(pq_b1(self.V) + pq_a2(self.V))*pqVDCC_C1
-            dpqVDCC_C2 = + pq_a2(self.V)*pqVDCC_C1 + pq_b3(self.V)*pqVDCC_C3 \
-                         -(pq_b2(self.V) + pq_a3(self.V))*pqVDCC_C2
-            dpqVDCC_C3 = + pq_a3(self.V)*pqVDCC_C2 + pq_b4(self.V)*pqVDCC_O \
-                         -(pq_b3(self.V) + pq_a4(self.V))*pqVDCC_C3
-            dpqVDCC_C4 = 0
-            dpqVDCC_O  = + pq_a4(self.V)*pqVDCC_C3 - pq_b4(self.V)*pqVDCC_O
 
-            self.dX += [dpqVDCC_C0, dpqVDCC_C1, dpqVDCC_C2, dpqVDCC_C3, dpqVDCC_C4, dpqVDCC_O]
+
+        ### nVDCC
+        if 'nVDCC' in self.models:
+            dCa += 1*nVDCC_O
+            dnVDCC_C0 = + n_b1(self.V)*nVDCC_C1 - n_a1(self.V)*nVDCC_C0
+            dnVDCC_C1 = + n_a1(self.V)*nVDCC_C0 + n_b2(self.V)*nVDCC_C2 \
+                        -(n_b1(self.V) + n_a2(self.V))*nVDCC_C1
+            dnVDCC_C2 = + n_a2(self.V)*nVDCC_C1 + n_b3(self.V)*nVDCC_C3 \
+                        -(n_b2(self.V) + n_a3(self.V))*nVDCC_C2
+            dnVDCC_C3 = + n_a3(self.V)*nVDCC_C2 + n_b4(self.V)*nVDCC_C4 \
+                        -(n_b3(self.V) + n_a4(self.V))*nVDCC_C3
+            dnVDCC_C4 = + n_a4(self.V)*nVDCC_C3 + n_b*nVDCC_O \
+                        -(n_b4(self.V) + n_a)*nVDCC_C4
+            dnVDCC_O  = + n_a*nVDCC_C4 - n_b*nVDCC_O
+
+            self.dX += [dnVDCC_C0, dnVDCC_C1, dnVDCC_C2, dnVDCC_C3, dnVDCC_C4, dnVDCC_O]
             self.dX[0] += dCa
-            #'''
 
         ### rVDCC
         if 'rVDCC' in self.models:
@@ -193,30 +195,13 @@ class equations:
                         -(r_b1(self.V) + r_a2(self.V))*rVDCC_C1
             drVDCC_C2 = + r_a2(self.V)*rVDCC_C1 + r_b3(self.V)*rVDCC_C3 \
                         -(r_b2(self.V) + r_a3(self.V))*rVDCC_C2
-            drVDCC_C3 = + r_a3(self.V)*rVDCC_C2 + r_b4(self.V)*rVDCC_C3 \
+            drVDCC_C3 = + r_a3(self.V)*rVDCC_C2 + r_b4(self.V)*rVDCC_C4 \
                         -(r_b3(self.V) + r_a4(self.V))*rVDCC_C3
             drVDCC_C4 = + r_a4(self.V)*rVDCC_C3 + r_b*rVDCC_O \
                         -(r_b4(self.V) + r_a)*rVDCC_C4
             drVDCC_O  = + r_a*rVDCC_C4 - r_b*rVDCC_O
 
             self.dX += [drVDCC_C0, drVDCC_C1, drVDCC_C2, drVDCC_C3, drVDCC_C4, drVDCC_O]
-            self.dX[0] += dCa
-
-        ### nVDCC
-        if 'nVDCC' in self.models:
-            dCa += 1000*nVDCC_O
-            dnVDCC_C0 = + r_b1(self.V)*nVDCC_C1 - r_a1(self.V)*nVDCC_C0
-            dnVDCC_C1 = + r_a1(self.V)*nVDCC_C0 + r_b2(self.V)*nVDCC_C2 \
-                         -(r_b1(self.V) + r_a2(self.V))*nVDCC_C1
-            dnVDCC_C2 = + r_a2(self.V)*nVDCC_C1 + r_b3(self.V)*nVDCC_C3 \
-                         -(r_b2(self.V) + r_a3(self.V))*nVDCC_C2
-            dnVDCC_C3 = + r_a3(self.V)*nVDCC_C2 + r_b4(self.V)*nVDCC_C4 \
-                         -(r_b3(self.V) + r_a4(self.V))*nVDCC_C3
-            dnVDCC_C4 = + n_a4(self.V)*nVDCC_C3 + n_b*nVDCC_O \
-                         -(n_b4(self.V) + n_a)*nVDCC_C4
-            dnVDCC_O  = + n_a*nVDCC_C4 - n_b*nVDCC_O
-
-            self.dX += [dnVDCC_C0, dnVDCC_C1, dnVDCC_C2, dnVDCC_C3, dnVDCC_C4, dnVDCC_O]
             self.dX[0] += dCa
 
         ### Calcium Buffers
