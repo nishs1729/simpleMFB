@@ -219,16 +219,24 @@ def initialIndex(cModels):
 
 
 ### get cModels containing the model equations
-def getModels(cmpts, cm):
+def getModels(cmpts, cm, initC):
     model = {}
     ## All compartments have Ca
     for m in cmpts.keys():
-        model.update({m: {'Ca': []}})
+        if m in initC.keys():
+            if 'Ca' in initC[m].keys():
+                model.update({m: {'Ca': initC[m]['Ca']}})
+        else:
+            model.update({m: {'Ca': []}})
 
     ## Fill compartments with models as required
     for m, cnames in cm.items():
         for cname in cnames:
-            model[cname].update({m: []})
+            try:
+                if m in initC[cname].keys():
+                    model[cname].update({m: initC[cname][m]})
+            except:
+                model[cname].update({m: []})
 
     ## Generate models for compartments
     cModels = od()

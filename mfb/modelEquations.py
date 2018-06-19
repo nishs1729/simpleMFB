@@ -36,7 +36,8 @@ class equations:
         if 'pqVDCC' in models:
             if models['pqVDCC'] == []: self.X0 += initVal['pqVDCC']
             else: self.X0 += models['pqVDCC']
-            self.idx.update(od(zip(['pqVDCC_C0', 'pqVDCC_C1', 'pqVDCC_C2', 'pqVDCC_C3', 'pqVDCC_C4', 'pqVDCC_O'],
+            self.idx.update(od(zip(['pqVDCC_C0', 'pqVDCC_C1', 'pqVDCC_C2',
+                                    'pqVDCC_C3', 'pqVDCC_C4', 'pqVDCC_O'],
                                     range(i,i+6))))
             i += len(initVal['pqVDCC'])
             self.V = 0
@@ -44,7 +45,8 @@ class equations:
         if 'nVDCC' in models:
             if models['nVDCC'] == []: self.X0 += initVal['nVDCC']
             else: self.X0 += models['nVDCC']
-            self.idx.update(od(zip(['nVDCC_C0', 'nVDCC_C1', 'nVDCC_C2', 'nVDCC_C3', 'nVDCC_C4', 'nVDCC_O'],
+            self.idx.update(od(zip(['nVDCC_C0', 'nVDCC_C1', 'nVDCC_C2',
+                                    'nVDCC_C3', 'nVDCC_C4', 'nVDCC_O'],
                                     range(i,i+6))))
             i += len(initVal['nVDCC'])
             self.V = 0
@@ -52,7 +54,8 @@ class equations:
         if 'rVDCC' in models:
             if models['rVDCC'] == []: self.X0 += initVal['rVDCC']
             else: self.X0 += models['rVDCC']
-            self.idx.update(od(zip(['rVDCC_C0', 'rVDCC_C1', 'rVDCC_C2', 'rVDCC_C3', 'rVDCC_C4', 'rVDCC_O'],
+            self.idx.update(od(zip(['rVDCC_C0', 'rVDCC_C1', 'rVDCC_C2',
+                                    'rVDCC_C3', 'rVDCC_C4', 'rVDCC_O'],
                                     range(i,i+6))))
             i += len(initVal['rVDCC'])
             self.V = 0
@@ -61,9 +64,9 @@ class equations:
             if models['calbindin'] == []: self.X0 += initVal['calbindin']
             else: self.X0 += models['calbindin']
             self.idx.update(
-                        od([('cbH0M0', i)  , ('cbH0M1', i+1), ('cbH0M2', i+2),
-                            ('cbH1M0', i+3), ('cbH1M1', i+4), ('cbH1M2', i+5),
-                            ('cbH2M0', i+6), ('cbH2M1', i+7), ('cbH2M2', i+8)]))
+                od([('cbH0M0', i)  , ('cbH0M1', i+1), ('cbH0M2', i+2),
+                    ('cbH1M0', i+3), ('cbH1M1', i+4), ('cbH1M2', i+5),
+                    ('cbH2M0', i+6), ('cbH2M1', i+7), ('cbH2M2', i+8)]))
             i += len(initVal['calbindin'])
 
         if 'AZ' in models:
@@ -102,23 +105,27 @@ class equations:
 
         if 'calbindin' in self.models:
             j = len(initVal['calbindin'])
-            cbH0M0, cbH0M1, cbH0M2, cbH1M0,\
-            cbH1M1, cbH1M2, cbH2M0, cbH2M1, cbH2M2 = X[i:i+j]
+            cbH0M0, cbH0M1, cbH0M2, \
+            cbH1M0, cbH1M1, cbH1M2, \
+            cbH2M0, cbH2M1, cbH2M2 = X[i:i+j]
             i += j
 
         if 'pqVDCC' in self.models:
             j = len(initVal['pqVDCC'])
-            pqVDCC_C0, pqVDCC_C1, pqVDCC_C2, pqVDCC_C3, pqVDCC_C4, pqVDCC_O = X[i:i+j]
+            pqVDCC_C0, pqVDCC_C1, pqVDCC_C2, \
+            pqVDCC_C3, pqVDCC_C4, pqVDCC_O = X[i:i+j]
             i += j
 
         if 'nVDCC' in self.models:
             j = len(initVal['nVDCC'])
-            nVDCC_C0, nVDCC_C1, nVDCC_C2, nVDCC_C3, nVDCC_C4, nVDCC_O = X[i:i+j]
+            nVDCC_C0, nVDCC_C1, nVDCC_C2, \
+            nVDCC_C3, nVDCC_C4, nVDCC_O = X[i:i+j]
             i += j
 
         if 'rVDCC' in self.models:
             j = len(initVal['rVDCC'])
-            rVDCC_C0, rVDCC_C1, rVDCC_C2, rVDCC_C3, rVDCC_C4, rVDCC_O = X[i:i+j]
+            rVDCC_C0, rVDCC_C1, rVDCC_C2, \
+            rVDCC_C3, rVDCC_C4, rVDCC_O = X[i:i+j]
             i += j
 
         if 'AZ' in self.models:
@@ -206,10 +213,10 @@ class equations:
 
         ### Calcium Buffers
         if 'calbindin' in self.models:
-            dCa +=   + cbMoff*(cbH2M1 + cbH1M1 + cbH0M1 + 2*(cbH2M2 + cbH1M2 + cbH0M2)) \
-                     + cbHoff*(cbH2M1 + cbH1M1 + cbH0M1 + 2*(cbH2M2 + cbH2M1 + cbH0M0)) \
-                  - (+ cbMon*(cbH2M1 + cbH1M1 + cbH0M1  + 2*(cbH2M0 + cbH1M0 + cbH0M0)) \
-                     + cbHon*(cbH2M1 + cbH1M1 + cbH0M1  + 2*(cbH0M2 + cbH0M1 + cbH0M0)) )*Ca
+            dCa+=0#   + cbMoff*(cbH2M1 + cbH1M1 + cbH0M1 + 2*(cbH2M2 + cbH1M2 + cbH0M2)) \
+                #     + cbHoff*(cbH2M1 + cbH1M1 + cbH0M1 + 2*(cbH2M2 + cbH2M1 + cbH2M0)) \
+                  #- (+ cbMon*(cbH2M1 + cbH1M1 + cbH0M1  + 2*(cbH2M0 + cbH1M0 + cbH0M0)) \
+                #     + cbHon*(cbH2M1 + cbH1M1 + cbH0M1  + 2*(cbH0M2 + cbH0M1 + cbH0M0)) )*Ca
 
             dcbH0M0 = - 2*(cbMon+cbHon)*cbH0M0*Ca + cbMoff*cbH0M1 + cbHoff*cbH1M0
 

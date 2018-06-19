@@ -20,17 +20,24 @@ cmpts = compartments(modelDesc)
 
 ### Compartment list for specific model type
 cm = {
-    'HH': ['0-0-0'],
+    'HH': [],#'0-0-0'],
     'PMCA': [], #cSurf(cmpts)
-    'pqVDCC': ['0-0-0'], #hexPoints(9, 500, bBox),
-    'nVDCC': ['0-0-0'], #hexPoints(9, 500, bBox),
-    'rVDCC': ['0-0-0'], #hexPoints(9, 500, bBox),
+    'pqVDCC': [],#'0-0-0'], #hexPoints(9, 500, bBox),
+    'nVDCC': [],#'0-0-0'], #hexPoints(9, 500, bBox),
+    'rVDCC': [],#'0-0-0'], #hexPoints(9, 500, bBox),
     'AZ': [],
-    'calbindin': [] #cmpts.keys()
+    'calbindin': ['0-0-0'] #cmpts.keys()
+}
+
+initC = {
+    '0-0-0': {
+        'Ca': [1e-6],
+        'calbindin': [1.5e-6,0.5e-6,0,0,0,0,0,0,0]
+    }
 }
 
 ### List of model objects for each compartment
-cModels = getModels(cmpts, cm)
+cModels = getModels(cmpts, cm, initC)
 print [a.models for a in cModels.values()]
 
 ### Check if no compartment have overlapping volumes and
