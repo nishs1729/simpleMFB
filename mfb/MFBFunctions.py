@@ -235,6 +235,8 @@ def getModels(cmpts, cm, initC):
             try:
                 if m in initC[cname].keys():
                     model[cname].update({m: initC[cname][m]})
+                else:
+                    model[cname].update({m: []})
             except:
                 model[cname].update({m: []})
 
