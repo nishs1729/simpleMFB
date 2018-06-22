@@ -137,7 +137,7 @@ class equations:
 
         #################### Equations #####################
         if 'Ca' in self.models:
-            dCa = 0
+            dCa = Ca
             self.dX += [dCa]
 
         ### HH model

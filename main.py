@@ -8,7 +8,7 @@ commandArg(sys.argv)
 
 print "Setting up system..."
 ### Enter model description
-modelDesc = test1
+modelDesc = test8
 
 ### MFB bounding box
 bBox = boundingBox(modelDesc)
@@ -20,19 +20,18 @@ cmpts = compartments(modelDesc)
 
 ### Compartment list for specific model type
 cm = {
-    'HH': [],#'0-0-0'],
+    'HH': ['0-0-0'],
     'PMCA': [], #cSurf(cmpts)
     'pqVDCC': [],#'0-0-0'], #hexPoints(9, 500, bBox),
     'nVDCC': [],#'0-0-0'], #hexPoints(9, 500, bBox),
     'rVDCC': [],#'0-0-0'], #hexPoints(9, 500, bBox),
     'AZ': [],
-    'calbindin': ['0-0-0'] #cmpts.keys()
+    'calbindin': [] #cmpts.keys()
 }
 
 initC = {
     '0-0-0': {
-        'Ca': [1e-6],
-        'calbindin': [1.5e-6,0.5e-6,0,0,0,0,0,0,0]
+        'Ca': [1e-6]
     }
 }
 

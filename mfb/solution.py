@@ -35,6 +35,7 @@ class solution:
 
         dX = []
         j=0
+        #print X
         for cm in self.cModels.values():
             ## All compartments have V value of (0,0,0)th compartment
             #cm.V = cModels['0-0-0'].V
@@ -45,10 +46,13 @@ class solution:
             caFlux = 0
             for nbr, val in cm.nbrs.items():
                 area, d = val
-                caFlux += diffCa*area*(X[self.cIdx[nbr]] - X[j])/d/cm.vol*1e18
+                caFlux += 1e18*diffCa*area*(X[self.cIdx[nbr]] - X[j])/d/cm.vol
+                #print nbr, cm.name, 1e18*diffCa*area*(X[self.cIdx[nbr]] - X[j])/d/cm.vol, '\t', (X[self.cIdx[nbr]] - X[j]), '\t', X[self.cIdx[nbr]], X[j]
 
-            CaX = X[j:j+cm.nVar]
+            CaX = np.copy(X[j:j+cm.nVar])
+            #print 'Before: ', CaX, X[j:j+cm.nVar]
             CaX[0] += caFlux
+            #print 'After: ', CaX, X[j:j+cm.nVar]
 
             ## Collect dX values from each compartment
             dX += cm.dXdt(CaX, t)
@@ -103,7 +107,7 @@ class solution:
         for ti, tf in tinterval:
             t_eval = linspace(ti, tf, round((tf - ti)/tstep) + 1)[:-1]
 
-            sol = odeint(self.dXdt, X0, t_eval)
+            sol = odeint(self.dXdt, X0, t_eval, rtol=cmdArg['rtol'], atol=cmdArg['atol'])
 
             ## Last values of sol as X0
             X0 = sol[-1,:]
